@@ -9,17 +9,15 @@ import { User } from './user/user.entity';
 import { Todo } from './todo/todo.entity';
 import { UserService } from './user/user.service';
 import { TodoService } from './todo/todo.service';
-import { JwtService } from '@nestjs/jwt';
 import { HealthCheckController } from './healthcheck/healtcheck.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-const InitDBModule = TypeOrmModule.forRootAsync({
-  // imports: [
-  //   ConfigModule.forRoot({
-  //     isGlobal: true,
-  //     envFilePath: '.env',
-  //   }),
-  // ],
+const GlobalConfigModule = ConfigModule.forRoot({
+  isGlobal: true,
+  envFilePath: '.env',
+});
+
+const DatabaseModule = TypeOrmModule.forRootAsync({
   useFactory: async (configService: ConfigService) => ({
     type: 'postgres',
     host: configService.get<string>('DB_HOST'),
@@ -28,26 +26,23 @@ const InitDBModule = TypeOrmModule.forRootAsync({
     password: configService.get<string>('DB_PASSWORD'),
     database: configService.get<string>('DB_NAME'),
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
-    synchronize: true, // Should be set to false in production
+    synchronize: configService.get<string>('NODE_ENV') !== 'production',
   }),
   inject: [ConfigService],
 });
 
-const EntititesDBModule = TypeOrmModule.forFeature([User, Todo]);
+const EntitiesModule = TypeOrmModule.forFeature([User, Todo]);
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
-    }),
-    InitDBModule,
-    EntititesDBModule,
+    GlobalConfigModule,
+    DatabaseModule,
+    EntitiesModule,
     AuthModule,
     UserModule,
     TodoModule,
   ],
   controllers: [HealthCheckController, UserController, TodoController],
-  providers: [JwtService, UserService, TodoService],
+  providers: [UserService, TodoService],
 })
 export class AppModule {}

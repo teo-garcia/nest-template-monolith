@@ -1,23 +1,21 @@
 import { IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
 
 export interface JwtPayload {
-  sub: string; // Subject (typically user ID)
-  username: string; // User's username
-  // email: string; // User's email (if needed)
-  // Add any other relevant user information as needed
+  sub: string;
+  username: string;
 }
 
 export class SignUpDto {
   @IsNotEmpty()
   @IsString()
-  @MinLength(4) // Minimum length for the username
-  @MaxLength(20) // Maximum length for the username
+  @MinLength(4)
+  @MaxLength(20)
   username: string;
 
   @IsNotEmpty()
   @IsString()
-  @MinLength(8) // Minimum length for the password
-  @MaxLength(30) // Maximum length for the password
+  @MinLength(8)
+  @MaxLength(30)
   password: string;
 }
 

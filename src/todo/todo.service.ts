@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Todo } from './todo.entity';
 import { Repository } from 'typeorm';
@@ -29,17 +33,22 @@ export class TodoService {
     return this.todoRepository.save(newTodo);
   }
 
-  async edit(id: number, updatedTodo: Todo): Promise<Todo> {
-    /**
-     * TODO: Adjust this
-     */
-    await this.getById(id);
+  async edit(id: number, updatedTodo: Todo, userId: number): Promise<Todo> {
+    const existingTodo = await this.getById(id);
+
+    if (existingTodo.userId !== userId) {
+      throw new ForbiddenException(
+        'You do not have permission to edit this todo',
+      );
+    }
+
     updatedTodo.id = id;
     return this.todoRepository.save(updatedTodo);
   }
 
   async delete(id: number): Promise<void> {
-    await this.getById(id); // Check if the todo exists
+    // TODO: Adjust this
+    await this.getById(id);
     await this.todoRepository.delete(id);
   }
 }

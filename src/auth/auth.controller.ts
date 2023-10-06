@@ -11,10 +11,11 @@ export class AuthController {
 
   @Post('signup')
   async signUp(@Body() signUpDto: SignUpDto): Promise<StandardResponse<User>> {
+    const user = await this.authService.signUp(signUpDto);
     return {
-      message: 'ok',
-      data: await this.authService.signUp(signUpDto),
-      status: HttpStatus['OK'],
+      message: 'User registered successfully',
+      data: user,
+      status: HttpStatus.CREATED,
     };
   }
 
@@ -22,14 +23,8 @@ export class AuthController {
   async signIn(
     @Body() signInDto: SignInDto,
     @Res() res: Response,
-  ): Promise<StandardResponse> {
+  ): Promise<void> {
     const { jwt, user } = await this.authService.signIn(signInDto);
-
-    res.header('Authorization', 'Bearer '.concat(jwt)).json(user);
-
-    return {
-      message: 'ok',
-      status: HttpStatus['OK'],
-    };
+    res.header('Authorization', `Bearer ${jwt}`).json(user);
   }
 }

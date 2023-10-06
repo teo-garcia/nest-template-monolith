@@ -39,8 +39,10 @@ export class TodoController {
   async edit(
     @Param('id') id: number,
     @Body() updatedTodo: Todo,
+    @Request() req,
   ): Promise<Todo> {
-    return this.todoService.edit(id, updatedTodo);
+    const user: User = req.user;
+    return this.todoService.edit(id, updatedTodo, user.id);
   }
 
   @Delete(':id')

@@ -6,16 +6,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import * as bcrypt from 'bcryptjs';
 import { SignUpDto } from 'src/auth/auth.types';
-import { JwtService } from '@nestjs/jwt';
+import { hash, compare } from 'bcryptjs';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly jwtService: JwtService,
   ) {}
 
   async getById(id: number): Promise<User> {
@@ -42,26 +40,21 @@ export class UserService {
     const { username, password } = signUpDto;
 
     // Check if the username is already taken
-    const existingUser = await this.userRepository.findOne({
-      where: { username },
-    });
+    const existingUser = await this.getByUsername(username);
 
     if (existingUser) {
       throw new ConflictException('Username is already in use.');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10); // 10 is the number of salt rounds
-
-    // Create and save the new user
     const newUser = this.userRepository.create({
       username,
-      password: hashedPassword,
+      password,
     });
     await this.userRepository.save(newUser);
+    const newUserWithoutPassword = { ...newUser };
+    delete newUserWithoutPassword.password;
 
-    delete newUser.password;
-
-    return newUser;
+    return newUserWithoutPassword;
   }
 
   async delete(id: number): Promise<void> {
@@ -73,5 +66,26 @@ export class UserService {
     }
 
     await this.userRepository.remove(user);
+  }
+
+  async getHashedPassword(password: string): Promise<string> {
+    const saltRounds = 10;
+    return await hash(password, saltRounds);
+  }
+
+  // async validateUser(payload: any): Promise<any> {
+  //   const user = await this.getById(payload.sub);
+  //   if (!user) {
+  //     throw new UnauthorizedException();
+  //   }
+
+  //   return user;
+  // }
+
+  async getIsPasswordMatch(
+    plainPassword: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return await compare(plainPassword, hashedPassword);
   }
 }

@@ -1,9 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/user.entity';
-import * as bcrypt from 'bcryptjs';
-import { JwtPayload, SignInDto } from './auth.types';
+import { JwtPayload, SignInDto, SignUpDto } from './auth.types';
 
 @Injectable()
 export class AuthService {
@@ -12,22 +15,30 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(payload: any): Promise<any> {
-    const user = await this.userService.getById(payload.sub);
-    if (!user) {
-      throw new UnauthorizedException();
+  async signUp(signUpDto: SignUpDto): Promise<User> {
+    const { username } = signUpDto;
+
+    const existingUser = await this.userService.getByUsername(username);
+
+    if (existingUser) {
+      throw new ConflictException('Username is already taken');
     }
 
-    return user;
+    const newUser = await this.userService.add(signUpDto);
+
+    return newUser;
   }
 
   async signIn(signInDto: SignInDto): Promise<{ user: User; jwt: string }> {
     const { username, password } = signInDto;
 
     const user = await this.userService.getByUsername(username);
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordMatch = await this.userService.getIsPasswordMatch(
+      password,
+      user.password,
+    );
 
-    if (!isPasswordValid) {
+    if (!isPasswordMatch) {
       throw new UnauthorizedException('Invalid credentials.');
     }
 
@@ -41,10 +52,5 @@ export class AuthService {
     const jwt = this.jwtService.sign(jwtPayload);
 
     return { user, jwt };
-  }
-
-  async signUp(signUpDto: SignInDto): Promise<User> {
-    const newUser = await this.userService.add(signUpDto);
-    return newUser;
   }
 }

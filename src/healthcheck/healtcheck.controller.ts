@@ -10,7 +10,7 @@ export class HealthCheckController {
   healthcheck(): StandardResponse {
     return {
       message: 'ok',
-      status: HttpStatus['OK'],
+      status: HttpStatus.OK,
     };
   }
 }
