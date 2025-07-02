@@ -1,8 +1,11 @@
-import sharedNode from '@teo-garcia/eslint-config-shared/node';
-import jest from 'eslint-plugin-jest';
-import globals from 'globals';
+import base from '@teo-garcia/eslint-config-shared/base'
+import node from '@teo-garcia/eslint-config-shared/node'
+import jest from 'eslint-plugin-jest'
+import globals from 'globals'
+
 export default [
-  ...sharedNode,
+  ...base,
+  ...node,
   {
     files: [
       '**/*.test.{js,ts}',
@@ -23,4 +26,4 @@ export default [
       ...jest.configs.recommended.rules,
     },
   },
-];
+]

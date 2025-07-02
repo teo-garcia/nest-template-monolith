@@ -2,7 +2,9 @@
 
 ## Overview
 
-This document provides guidelines for deploying the NestJS monolith application to various environments. The deployment strategy is designed to be flexible, allowing for deployment to traditional servers, containers, or cloud platforms.
+This document provides guidelines for deploying the NestJS monolith application
+to various environments. The deployment strategy is designed to be flexible,
+allowing for deployment to traditional servers, containers, or cloud platforms.
 
 ## Prerequisites
 
@@ -269,8 +271,8 @@ npm run migration:run
 Example Winston configuration:
 
 ```typescript
-import { WinstonModule } from 'nest-winston';
-import * as winston from 'winston';
+import { WinstonModule } from 'nest-winston'
+import * as winston from 'winston'
 
 const app = await NestFactory.create(AppModule, {
   logger: WinstonModule.createLogger({
@@ -280,7 +282,7 @@ const app = await NestFactory.create(AppModule, {
       new winston.transports.File({ filename: 'combined.log' }),
     ],
   }),
-});
+})
 ```
 
 ## SSL/TLS Configuration
@@ -288,20 +290,20 @@ const app = await NestFactory.create(AppModule, {
 For production, enable HTTPS:
 
 ```typescript
-import * as fs from 'fs';
-import * as https from 'https';
+import * as fs from 'fs'
+import * as https from 'https'
 
 async function bootstrap() {
   const httpsOptions = {
     key: fs.readFileSync('path/to/private-key.pem'),
     cert: fs.readFileSync('path/to/public-certificate.pem'),
-  };
+  }
 
   const app = await NestFactory.create(AppModule, {
     httpsOptions,
-  });
+  })
 
-  await app.listen(3000);
+  await app.listen(3000)
 }
 ```
 
@@ -310,8 +312,8 @@ async function bootstrap() {
 Implement health checks for monitoring tools:
 
 ```typescript
-import { TerminusModule } from '@nestjs/terminus';
-import { HttpModule } from '@nestjs/axios';
+import { TerminusModule } from '@nestjs/terminus'
+import { HttpModule } from '@nestjs/axios'
 
 @Module({
   imports: [TerminusModule, HttpModule],
@@ -352,8 +354,8 @@ export class AppModule {}
 3. Implement rate limiting:
 
    ```typescript
-   import { APP_GUARD } from '@nestjs/core';
-   import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+   import { APP_GUARD } from '@nestjs/core'
+   import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 
    @Module({
      imports: [
@@ -375,19 +377,19 @@ export class AppModule {}
 4. Implement proper CORS settings:
 
    ```typescript
-   const app = await NestFactory.create(AppModule);
+   const app = await NestFactory.create(AppModule)
    app.enableCors({
      origin: ['https://yourdomain.com'],
      methods: ['GET', 'POST', 'PUT', 'DELETE'],
      credentials: true,
-   });
+   })
    ```
 
 5. Set security headers:
 
    ```typescript
-   import * as helmet from 'helmet';
+   import * as helmet from 'helmet'
 
-   const app = await NestFactory.create(AppModule);
-   app.use(helmet());
+   const app = await NestFactory.create(AppModule)
+   app.use(helmet())
    ```

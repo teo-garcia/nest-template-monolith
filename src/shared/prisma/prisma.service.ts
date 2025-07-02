@@ -3,16 +3,16 @@ import {
   Logger,
   OnModuleDestroy,
   OnModuleInit,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { PrismaClient } from '@prisma/client';
+} from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { PrismaClient } from '@prisma/client'
 
 @Injectable()
 export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
-  private readonly logger = new Logger(PrismaService.name);
+  private readonly logger = new Logger(PrismaService.name)
 
   constructor(private configService: ConfigService) {
     super({
@@ -26,25 +26,25 @@ export class PrismaService
           ? ['query', 'info', 'warn', 'error']
           : ['error'],
       errorFormat: 'colorless',
-    });
+    })
   }
 
   async onModuleInit(): Promise<void> {
     try {
-      await this.$connect();
-      this.logger.log('Successfully connected to database');
+      await this.$connect()
+      this.logger.log('Successfully connected to database')
     } catch (error) {
-      this.logger.error('Failed to connect to database', error);
-      throw error;
+      this.logger.error('Failed to connect to database', error)
+      throw error
     }
   }
 
   async onModuleDestroy(): Promise<void> {
     try {
-      await this.$disconnect();
-      this.logger.log('Disconnected from database');
+      await this.$disconnect()
+      this.logger.log('Disconnected from database')
     } catch (error) {
-      this.logger.error('Error disconnecting from database', error);
+      this.logger.error('Error disconnecting from database', error)
     }
   }
 
@@ -53,11 +53,11 @@ export class PrismaService
    */
   async healthCheck(): Promise<boolean> {
     try {
-      await this.$queryRaw`SELECT 1`;
-      return true;
+      await this.$queryRaw`SELECT 1`
+      return true
     } catch (error) {
-      this.logger.error('Database health check failed', error);
-      return false;
+      this.logger.error('Database health check failed', error)
+      return false
     }
   }
 
@@ -72,11 +72,11 @@ export class PrismaService
           current_user as current_user,
           version() as version,
           now() as current_time
-      `;
-      return result;
+      `
+      return result
     } catch (error) {
-      this.logger.error('Failed to get database info', error);
-      throw error;
+      this.logger.error('Failed to get database info', error)
+      throw error
     }
   }
 
@@ -85,10 +85,10 @@ export class PrismaService
    */
   async executeRaw(sql: string, parameters: unknown[] = []): Promise<number> {
     try {
-      return await this.$executeRawUnsafe(sql, ...parameters);
+      return await this.$executeRawUnsafe(sql, ...parameters)
     } catch (error) {
-      this.logger.error(`Raw SQL execution failed: ${sql}`, error);
-      throw error;
+      this.logger.error(`Raw SQL execution failed: ${sql}`, error)
+      throw error
     }
   }
 
@@ -97,10 +97,10 @@ export class PrismaService
    */
   async queryRaw(sql: string, parameters: unknown[] = []): Promise<unknown> {
     try {
-      return await this.$queryRawUnsafe(sql, ...parameters);
+      return await this.$queryRawUnsafe(sql, ...parameters)
     } catch (error) {
-      this.logger.error(`Raw SQL query failed: ${sql}`, error);
-      throw error;
+      this.logger.error(`Raw SQL query failed: ${sql}`, error)
+      throw error
     }
   }
 }

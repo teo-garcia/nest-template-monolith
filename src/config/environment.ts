@@ -1,4 +1,4 @@
-import { registerAs } from '@nestjs/config';
+import { registerAs } from '@nestjs/config'
 
 export default registerAs('app', () => ({
   // Application
@@ -61,4 +61,4 @@ export default registerAs('app', () => ({
     ttl: Number.parseInt(process.env.THROTTLE_TTL || '60', 10),
     limit: Number.parseInt(process.env.THROTTLE_LIMIT || '100', 10),
   },
-}));
+}))

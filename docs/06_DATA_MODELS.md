@@ -1,10 +1,12 @@
 # Data Models
 
-This document describes the data models used in this application and their relationships.
+This document describes the data models used in this application and their
+relationships.
 
 ## Overview
 
-The application uses Prisma ORM with PostgreSQL. The database schema is defined in `prisma/schema.prisma`.
+The application uses Prisma ORM with PostgreSQL. The database schema is defined
+in `prisma/schema.prisma`.
 
 Two primary models are implemented:
 
@@ -112,10 +114,13 @@ The database schema is managed through Prisma migrations. To modify the schema:
    npx prisma migrate dev --name "descriptive_name_of_change"
    ```
 
-All migrations are stored in the `prisma/migrations` directory and can be used to recreate the database schema from scratch.
+All migrations are stored in the `prisma/migrations` directory and can be used
+to recreate the database schema from scratch.
 
 ## Shadow Database
 
-The application uses a shadow database for safe migrations. This second database is used by Prisma to verify migrations before applying them to the main database, ensuring that migrations don't fail halfway through.
+The application uses a shadow database for safe migrations. This second database
+is used by Prisma to verify migrations before applying them to the main
+database, ensuring that migrations don't fail halfway through.
 
 This configuration is automatically set up during the initialization process.

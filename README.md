@@ -1,6 +1,8 @@
 # NestJS Monolith Template
 
-A comprehensive template for building scalable monolithic applications with NestJS. This template provides a production-ready foundation with PostgreSQL database, Redis cache, and automated development setup.
+A comprehensive template for building scalable monolithic applications with
+NestJS. This template provides a production-ready foundation with PostgreSQL
+database, Redis cache, and automated development setup.
 
 ## Features
 
@@ -43,15 +45,19 @@ For detailed information, see the documentation in the `docs/` folder:
 - **[02_DEVELOPMENT.md](./docs/02_DEVELOPMENT.md)** - Development workflow
 - **[03_TESTING.md](./docs/03_TESTING.md)** - Testing strategy
 - **[04_DEPLOYMENT.md](./docs/04_DEPLOYMENT.md)** - Deployment guidelines
-- **[05_OPERATIONAL_SCRIPTS.md](./docs/05_OPERATIONAL_SCRIPTS.md)** - **Complete scripts reference** 📋
+- **[05_OPERATIONAL_SCRIPTS.md](./docs/05_OPERATIONAL_SCRIPTS.md)** - **Complete
+  scripts reference** 📋
 - **[06_DATA_MODELS.md](./docs/06_DATA_MODELS.md)** - Database models
 
-> **📋 All script documentation is centralized in [05_OPERATIONAL_SCRIPTS.md](./docs/05_OPERATIONAL_SCRIPTS.md)**
-> This is the single source of truth for all operational scripts usage, options, and workflows.
+> **📋 All script documentation is centralized in
+> [05_OPERATIONAL_SCRIPTS.md](./docs/05_OPERATIONAL_SCRIPTS.md)** This is the
+> single source of truth for all operational scripts usage, options, and
+> workflows.
 
 ## 🚀 Scalability
 
-This template is designed to scale from **starter apps to robust enterprise applications**:
+This template is designed to scale from **starter apps to robust enterprise
+applications**:
 
 - **Modular Architecture**: Add features without breaking existing code
 - **Docker Containerization**: Easy horizontal scaling
@@ -86,4 +92,5 @@ scripts/
 ./scripts/db/backup.sh                   # Create backup
 ```
 
-**📖 For complete script documentation, see [docs/05_OPERATIONAL_SCRIPTS.md](./docs/05_OPERATIONAL_SCRIPTS.md)**
+**📖 For complete script documentation, see
+[docs/05_OPERATIONAL_SCRIPTS.md](./docs/05_OPERATIONAL_SCRIPTS.md)**

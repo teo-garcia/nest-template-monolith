@@ -1,9 +1,9 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
 
-import { AppController } from './app.controller';
-import { LoggerModule } from './shared/logger/logger.module';
-import { PrismaModule } from './shared/prisma';
+import { AppController } from './app.controller'
+import { LoggerModule } from './shared/logger/logger.module'
+import { PrismaModule } from './shared/prisma'
 
 @Module({
   imports: [

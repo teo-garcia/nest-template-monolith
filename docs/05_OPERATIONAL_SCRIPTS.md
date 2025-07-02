@@ -1,6 +1,8 @@
 # Operational Scripts - Complete Reference
 
-This document is the **single source of truth** for all operational scripts in this project. All script-specific README files should be removed in favor of this centralized documentation.
+This document is the **single source of truth** for all operational scripts in
+this project. All script-specific README files should be removed in favor of
+this centralized documentation.
 
 ## 🎯 Quick Start
 
@@ -139,7 +141,8 @@ scripts/
 - Waits for services to be healthy
 - Shows connection information
 
-**Note**: This only starts background services. Run `pnpm start:dev` separately for the NestJS app.
+**Note**: This only starts background services. Run `pnpm start:dev` separately
+for the NestJS app.
 
 ### `stop.sh` - Stop Development Services
 
@@ -583,4 +586,5 @@ echo "→ Doing something..."
 echo "✓ Done!"
 ```
 
-This documentation is the authoritative source for all script usage. Individual script README files should be removed to avoid duplication and inconsistency.
+This documentation is the authoritative source for all script usage. Individual
+script README files should be removed to avoid duplication and inconsistency.

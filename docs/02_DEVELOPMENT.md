@@ -64,7 +64,8 @@
 
 ### **Prisma Service (Step 1)**
 
-The Prisma service provides a robust database connection layer with the following features:
+The Prisma service provides a robust database connection layer with the
+following features:
 
 **Files Created:**
 
@@ -88,7 +89,8 @@ The Prisma service provides a robust database connection layer with the followin
 
 ### **Global Validation & Error Handling (Step 2)**
 
-Comprehensive validation and error handling system with consistent API responses:
+Comprehensive validation and error handling system with consistent API
+responses:
 
 **Files Created:**
 
@@ -227,7 +229,8 @@ We follow GitFlow branching model:
 
 ### Commit Guidelines
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/) specification:
+We follow [Conventional Commits](https://www.conventionalcommits.org/)
+specification:
 
 ```
 <type>[optional scope]: <description>
@@ -330,7 +333,6 @@ For database changes:
 Launch configurations for VS Code are provided in `.vscode/launch.json`:
 
 1. JavaScript Debug Terminal:
-
    - Run `pnpm run start:debug`
    - Set breakpoints in VS Code
 

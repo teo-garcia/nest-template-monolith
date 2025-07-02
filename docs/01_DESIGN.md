@@ -2,11 +2,14 @@
 
 ## Overview
 
-This NestJS monolith template is designed to provide a solid foundation for building scalable, maintainable applications. It follows well-established design principles and patterns to ensure code quality, testability, and extensibility.
+This NestJS monolith template is designed to provide a solid foundation for
+building scalable, maintainable applications. It follows well-established design
+principles and patterns to ensure code quality, testability, and extensibility.
 
 ## Architecture
 
-The application follows a modular architecture with clear separation of concerns:
+The application follows a modular architecture with clear separation of
+concerns:
 
 ```
 src/
@@ -44,12 +47,14 @@ src/
 
 ### Modularity
 
-The application is organized into cohesive modules, each encapsulating a specific domain of functionality. This promotes:
+The application is organized into cohesive modules, each encapsulating a
+specific domain of functionality. This promotes:
 
 - **High cohesion**: Related code is grouped together
 - **Low coupling**: Modules interact through well-defined interfaces
 - **Independent testability**: Modules can be tested in isolation
-- **Reusability**: Modules can be reused across different parts of the application
+- **Reusability**: Modules can be reused across different parts of the
+  application
 
 ### Dependency Injection
 
@@ -66,7 +71,8 @@ The codebase follows SOLID principles:
 - **Single Responsibility**: Each class has a single reason to change
 - **Open/Closed**: Components are open for extension but closed for modification
 - **Liskov Substitution**: Subtypes must be substitutable for their base types
-- **Interface Segregation**: Many specific interfaces are better than one general interface
+- **Interface Segregation**: Many specific interfaces are better than one
+  general interface
 - **Dependency Inversion**: Depend on abstractions, not concretions
 
 ### Repository Pattern
@@ -88,7 +94,9 @@ DTOs are used to:
 
 ## Operational Scripts
 
-The application includes a comprehensive set of bash scripts to streamline development, deployment, and operational tasks. These scripts enable developers to:
+The application includes a comprehensive set of bash scripts to streamline
+development, deployment, and operational tasks. These scripts enable developers
+to:
 
 - Initialize a new development environment from scratch
 - Manage Docker containers for the application and its dependencies
@@ -97,7 +105,10 @@ The application includes a comprehensive set of bash scripts to streamline devel
 - Monitor application health and performance
 - Automate common tasks for local development and CI/CD pipelines
 
-All operational scripts are located in the `scripts/` directory and are designed to be composable, well-documented, and idempotent. See [05_OPERATIONAL_SCRIPTS.md](./05_OPERATIONAL_SCRIPTS.md) for detailed documentation on each script.
+All operational scripts are located in the `scripts/` directory and are designed
+to be composable, well-documented, and idempotent. See
+[05_OPERATIONAL_SCRIPTS.md](./05_OPERATIONAL_SCRIPTS.md) for detailed
+documentation on each script.
 
 ## Tech Stack
 
@@ -130,5 +141,6 @@ Future enhancements planned for this template:
 
 1. **Event System**: For decoupled communication between modules
 2. **CQRS Integration**: For complex domains requiring command/query separation
-3. **Microservices Support**: Facilitate transitioning to microservices when needed
+3. **Microservices Support**: Facilitate transitioning to microservices when
+   needed
 4. **GraphQL Support**: Alternative API approach alongside REST

@@ -5,54 +5,54 @@ import {
   HttpException,
   HttpStatus,
   Logger,
-} from '@nestjs/common';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { Request, Response } from 'express';
+} from '@nestjs/common'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
+import { Request, Response } from 'express'
 
 interface ErrorResponse {
-  statusCode: number;
-  timestamp: string;
-  path: string;
-  method: string;
-  message: string | string[];
-  error?: string;
-  errors?: Record<string, string[]>;
+  statusCode: number
+  timestamp: string
+  path: string
+  method: string
+  message: string | string[]
+  error?: string
+  errors?: Record<string, string[]>
 }
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(GlobalExceptionFilter.name);
+  private readonly logger = new Logger(GlobalExceptionFilter.name)
 
   catch(exception: unknown, host: ArgumentsHost): void {
-    const context = host.switchToHttp();
-    const response = context.getResponse<Response>();
-    const request = context.getRequest<Request>();
+    const context = host.switchToHttp()
+    const response = context.getResponse<Response>()
+    const request = context.getRequest<Request>()
 
-    const errorResponse = this.buildErrorResponse(exception, request);
+    const errorResponse = this.buildErrorResponse(exception, request)
 
-    this.logError(exception, request, errorResponse);
+    this.logError(exception, request, errorResponse)
 
-    response.status(errorResponse.statusCode).json(errorResponse);
+    response.status(errorResponse.statusCode).json(errorResponse)
   }
 
   private buildErrorResponse(
     exception: unknown,
-    request: Request,
+    request: Request
   ): ErrorResponse {
-    const timestamp = new Date().toISOString();
-    const path = request.url;
-    const method = request.method;
+    const timestamp = new Date().toISOString()
+    const path = request.url
+    const method = request.method
 
     // Handle HTTP exceptions (including validation errors)
     if (exception instanceof HttpException) {
-      const status = exception.getStatus();
-      const exceptionResponse = exception.getResponse();
+      const status = exception.getStatus()
+      const exceptionResponse = exception.getResponse()
 
       if (
         typeof exceptionResponse === 'object' &&
         exceptionResponse != undefined
       ) {
-        const responseObject = exceptionResponse as Record<string, unknown>;
+        const responseObject = exceptionResponse as Record<string, unknown>
 
         return {
           statusCode: status,
@@ -62,7 +62,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           message: responseObject.message as string | string[],
           error: responseObject.error as string,
           errors: responseObject.errors as Record<string, string[]>,
-        };
+        }
       }
 
       return {
@@ -72,12 +72,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         method,
         message: exceptionResponse,
         error: exception.name,
-      };
+      }
     }
 
     // Handle Prisma database errors
     if (exception instanceof PrismaClientKnownRequestError) {
-      return this.handlePrismaError(exception, timestamp, path, method);
+      return this.handlePrismaError(exception, timestamp, path, method)
     }
 
     // Handle unknown errors
@@ -88,14 +88,14 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       method,
       message: 'Internal server error',
       error: 'InternalServerError',
-    };
+    }
   }
 
   private handlePrismaError(
     exception: PrismaClientKnownRequestError,
     timestamp: string,
     path: string,
-    method: string,
+    method: string
   ): ErrorResponse {
     switch (exception.code) {
       case 'P2002': {
@@ -107,7 +107,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           method,
           message: 'A record with this value already exists',
           error: 'ConflictError',
-        };
+        }
       }
 
       case 'P2025': {
@@ -119,7 +119,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           method,
           message: 'Record not found',
           error: 'NotFoundError',
-        };
+        }
       }
 
       case 'P2003': {
@@ -131,7 +131,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           method,
           message: 'Invalid reference to related record',
           error: 'BadRequestError',
-        };
+        }
       }
 
       default: {
@@ -142,7 +142,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           method,
           message: 'Database error occurred',
           error: 'DatabaseError',
-        };
+        }
       }
     }
   }
@@ -150,21 +150,21 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   private logError(
     exception: unknown,
     request: Request,
-    errorResponse: ErrorResponse,
+    errorResponse: ErrorResponse
   ): void {
-    const { statusCode, message, path, method } = errorResponse;
-    const userAgent = request.get('User-Agent') || '';
-    const ip = request.ip || request.socket.remoteAddress;
+    const { statusCode, message, path, method } = errorResponse
+    const userAgent = request.get('User-Agent') || ''
+    const ip = request.ip || request.socket.remoteAddress
 
     if (statusCode >= 500) {
       this.logger.error(
         `${method} ${path} ${statusCode} - ${ip} ${userAgent}`,
-        exception instanceof Error ? exception.stack : exception,
-      );
+        exception instanceof Error ? exception.stack : exception
+      )
     } else if (statusCode >= 400) {
       this.logger.warn(
-        `${method} ${path} ${statusCode} - ${ip} ${userAgent} - ${JSON.stringify(message)}`,
-      );
+        `${method} ${path} ${statusCode} - ${ip} ${userAgent} - ${JSON.stringify(message)}`
+      )
     }
   }
 }
