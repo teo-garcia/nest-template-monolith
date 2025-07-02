@@ -1,6 +1,7 @@
+import 'winston-daily-rotate-file';
+
 import { utilities as nestWinstonModuleUtilities } from 'nest-winston';
 import * as winston from 'winston';
-import 'winston-daily-rotate-file';
 
 type TransformableInfo = {
   level: string;
@@ -18,21 +19,23 @@ const logLevels = {
   verbose: 4,
 };
 
+export const formatMeta = (
+  meta: TransformableInfo,
+): Record<string, unknown> => {
+  const splatKey = Symbol.for('splat');
+  const splat = Reflect.get(meta, splatKey) as unknown[];
+  if (splat?.[0]) {
+    const cleanedMeta = { ...meta };
+    Reflect.deleteProperty(cleanedMeta, splatKey);
+    return { ...cleanedMeta, ...(splat[0] as Record<string, unknown>) };
+  }
+  return meta;
+};
+
 export const createLoggerConfig = (
   environment: string,
 ): winston.LoggerOptions => {
   const isProduction = environment === 'production';
-
-  const formatMeta = (meta: TransformableInfo): Record<string, unknown> => {
-    const splatKey = Symbol.for('splat');
-    const splat = Reflect.get(meta, splatKey) as unknown[];
-    if (splat?.[0]) {
-      const cleanedMeta = { ...meta };
-      Reflect.deleteProperty(cleanedMeta, splatKey);
-      return { ...cleanedMeta, ...(splat[0] as Record<string, unknown>) };
-    }
-    return meta;
-  };
 
   const formatMessage = winston.format((info: TransformableInfo) => {
     const { level, message, context, trace, ...meta } = info;

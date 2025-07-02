@@ -3,7 +3,7 @@ import { registerAs } from '@nestjs/config';
 export default registerAs('app', () => ({
   // Application
   nodeEnv: process.env.NODE_ENV || 'development',
-  port: parseInt(process.env.PORT || '3000', 10),
+  port: Number.parseInt(process.env.PORT || '3000', 10),
   apiPrefix: process.env.API_PREFIX || 'api',
   appName: process.env.APP_NAME || 'NestJS Monolith Template',
   apiVersion: process.env.API_VERSION || '1',
@@ -11,7 +11,7 @@ export default registerAs('app', () => ({
   // Database
   database: {
     host: process.env.DATABASE_HOST || 'localhost',
-    port: parseInt(process.env.DATABASE_PORT || '5432', 10),
+    port: Number.parseInt(process.env.DATABASE_PORT || '5432', 10),
     username: process.env.DATABASE_USER || 'postgres',
     password: process.env.DATABASE_PASSWORD || 'postgres',
     name: process.env.DATABASE_NAME || 'nest_monolith',
@@ -29,9 +29,9 @@ export default registerAs('app', () => ({
   // Redis Cache (Optional)
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379', 10),
+    port: Number.parseInt(process.env.REDIS_PORT || '6379', 10),
     password: process.env.REDIS_PASSWORD || '',
-    ttl: parseInt(process.env.REDIS_TTL || '3600', 10),
+    ttl: Number.parseInt(process.env.REDIS_TTL || '3600', 10),
   },
 
   // Swagger Documentation
@@ -58,7 +58,7 @@ export default registerAs('app', () => ({
 
   // Rate Limiting
   throttle: {
-    ttl: parseInt(process.env.THROTTLE_TTL || '60', 10),
-    limit: parseInt(process.env.THROTTLE_LIMIT || '100', 10),
+    ttl: Number.parseInt(process.env.THROTTLE_TTL || '60', 10),
+    limit: Number.parseInt(process.env.THROTTLE_LIMIT || '100', 10),
   },
 }));

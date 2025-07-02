@@ -1,1 +1,1 @@
-export { TransformInterceptor, ApiResponse } from './transform.interceptor';
+export { ApiResponse, TransformInterceptor } from './transform.interceptor';

@@ -1,7 +1,7 @@
 import {
-  ExceptionFilter,
-  Catch,
   ArgumentsHost,
+  Catch,
+  ExceptionFilter,
   HttpException,
   HttpStatus,
   Logger,
@@ -30,7 +30,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     const errorResponse = this.buildErrorResponse(exception, request);
 
-    // Log the error
     this.logError(exception, request, errorResponse);
 
     response.status(errorResponse.statusCode).json(errorResponse);
@@ -49,7 +48,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       const status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
-      if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
+      if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse != undefined
+      ) {
         const responseObject = exceptionResponse as Record<string, unknown>;
 
         return {
@@ -96,7 +98,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     method: string,
   ): ErrorResponse {
     switch (exception.code) {
-      case 'P2002':
+      case 'P2002': {
         // Unique constraint violation
         return {
           statusCode: HttpStatus.CONFLICT,
@@ -106,8 +108,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           message: 'A record with this value already exists',
           error: 'ConflictError',
         };
+      }
 
-      case 'P2025':
+      case 'P2025': {
         // Record not found
         return {
           statusCode: HttpStatus.NOT_FOUND,
@@ -117,8 +120,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           message: 'Record not found',
           error: 'NotFoundError',
         };
+      }
 
-      case 'P2003':
+      case 'P2003': {
         // Foreign key constraint violation
         return {
           statusCode: HttpStatus.BAD_REQUEST,
@@ -128,8 +132,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           message: 'Invalid reference to related record',
           error: 'BadRequestError',
         };
+      }
 
-      default:
+      default: {
         return {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           timestamp,
@@ -138,6 +143,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           message: 'Database error occurred',
           error: 'DatabaseError',
         };
+      }
     }
   }
 
@@ -148,7 +154,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   ): void {
     const { statusCode, message, path, method } = errorResponse;
     const userAgent = request.get('User-Agent') || '';
-    const ip = request.ip || request.connection.remoteAddress;
+    const ip = request.ip || request.socket.remoteAddress;
 
     if (statusCode >= 500) {
       this.logger.error(

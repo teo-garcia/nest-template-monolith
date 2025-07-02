@@ -1,12 +1,12 @@
+import { plainToInstance, Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
   IsNumber,
-  IsString,
-  IsBoolean,
   IsOptional,
+  IsString,
   validateSync,
 } from 'class-validator';
-import { plainToInstance, Type } from 'class-transformer';
 
 export class EnvironmentVariables {
   // Application

@@ -1,19 +1,19 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
-  Param,
   HttpException,
   HttpStatus,
+  Param,
+  Post,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-  IsString,
   IsEmail,
   IsOptional,
-  MinLength,
+  IsString,
   MaxLength,
+  MinLength,
 } from 'class-validator';
 
 import { PrismaService } from './shared/prisma';
@@ -144,17 +144,19 @@ export class AppController {
   @Get('health/error/:type')
   testErrorHandling(@Param('type') type: string): never {
     switch (type) {
-      case 'bad-request':
+      case 'bad-request': {
         throw new HttpException(
           'Testing bad request handling',
           HttpStatus.BAD_REQUEST,
         );
-      case 'not-found':
+      }
+      case 'not-found': {
         throw new HttpException(
           'Testing not found handling',
           HttpStatus.NOT_FOUND,
         );
-      case 'validation':
+      }
+      case 'validation': {
         throw new HttpException(
           {
             message: 'Testing validation error format',
@@ -165,8 +167,10 @@ export class AppController {
           },
           HttpStatus.UNPROCESSABLE_ENTITY,
         );
-      default:
+      }
+      default: {
         throw new Error('Testing unknown error handling');
+      }
     }
   }
 

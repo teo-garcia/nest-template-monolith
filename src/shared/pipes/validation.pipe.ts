@@ -1,12 +1,12 @@
 import {
-  PipeTransform,
-  Injectable,
   ArgumentMetadata,
   BadRequestException,
+  Injectable,
   Logger,
+  PipeTransform,
   Type,
 } from '@nestjs/common';
-import { plainToInstance, ClassConstructor } from 'class-transformer';
+import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { validate, ValidationError, ValidatorOptions } from 'class-validator';
 
 @Injectable()
@@ -60,7 +60,7 @@ export class GlobalValidationPipe implements PipeTransform {
   ): Record<string, string[]> {
     const formattedErrors: Record<string, string[]> = {};
 
-    errors.forEach((error) => {
+    for (const error of errors) {
       const property = error.property;
       const constraints = error.constraints;
 
@@ -71,12 +71,12 @@ export class GlobalValidationPipe implements PipeTransform {
       // Handle nested validation errors
       if (error.children && error.children.length > 0) {
         const nestedErrors = this.formatValidationErrors(error.children);
-        Object.keys(nestedErrors).forEach((nestedProperty) => {
+        for (const nestedProperty of Object.keys(nestedErrors)) {
           formattedErrors[`${property}.${nestedProperty}`] =
             nestedErrors[nestedProperty];
-        });
+        }
       }
-    });
+    }
 
     return formattedErrors;
   }

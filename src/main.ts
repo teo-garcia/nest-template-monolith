@@ -34,12 +34,17 @@ async function bootstrap(): Promise<void> {
 
   // Start the application
   await app.listen(port);
-  logger.log(
-    `Application is running on: http://localhost:${port}${apiPrefix ? `/${apiPrefix}` : ''} ✨`,
-  );
+
+  // Fix nested template literal issue
+  const baseUrl = `http://localhost:${port}`;
+  const fullUrl = apiPrefix ? `${baseUrl}/${apiPrefix}` : baseUrl;
+  logger.log(`Application is running on: ${fullUrl} ✨`);
 }
 
-bootstrap().catch((error) => {
+// Use top-level await instead of promise chain
+try {
+  await bootstrap();
+} catch (error) {
   console.error('Failed to start application:', error);
-  process.exit(1);
-});
+  throw error; // Throw instead of process.exit
+}
