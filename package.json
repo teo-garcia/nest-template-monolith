@@ -26,6 +26,7 @@
     "@swc/core": "^1.12.9",
     "@teo-garcia/eslint-config-shared": "^0.2.5",
     "@teo-garcia/prettier-config-shared": "^0.2.1",
+    "@teo-garcia/tsconfig-shared": "^0.1.2",
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.10",
@@ -77,7 +78,6 @@
   "license": "MIT",
   "name": "nest-template-monolith",
   "private": true,
-  "type": "module",
   "scripts": {
     "build": "nest build",
     "commitlint": "commitlint --edit",

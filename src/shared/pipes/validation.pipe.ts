@@ -69,8 +69,11 @@ export class GlobalValidationPipe implements PipeTransform {
       if (error.children && error.children.length > 0) {
         const nestedErrors = this.formatValidationErrors(error.children)
         for (const nestedProperty of Object.keys(nestedErrors)) {
-          formattedErrors[`${property}.${nestedProperty}`] =
-            nestedErrors[nestedProperty]
+          const nestedErrorMessages = nestedErrors[nestedProperty]
+          if (nestedErrorMessages) {
+            formattedErrors[`${property}.${nestedProperty}`] =
+              nestedErrorMessages
+          }
         }
       }
     }

@@ -41,9 +41,8 @@ async function bootstrap(): Promise<void> {
   logger.log(`Application is running on: ${fullUrl} ✨`)
 }
 
-try {
-  await bootstrap()
-} catch (error) {
+// eslint-disable-next-line unicorn/prefer-top-level-await
+bootstrap().catch((error) => {
   console.error('Failed to start application:', error)
-  throw error // Throw instead of process.exit
-}
+  throw error
+})

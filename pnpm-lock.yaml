@@ -72,11 +72,14 @@ importers:
         specifier: ^1.12.9
         version: 1.12.9
       "@teo-garcia/eslint-config-shared":
-        specifier: file:../eslint-config-shared
-        version: file:../eslint-config-shared(d4052e6a61c2db363c90bf2dd794498d)
+        specifier: ^0.2.5
+        version: 0.2.5(d4052e6a61c2db363c90bf2dd794498d)
       "@teo-garcia/prettier-config-shared":
-        specifier: file:../prettier-config-shared
-        version: file:../prettier-config-shared(prettier@3.6.2)
+        specifier: ^0.2.1
+        version: 0.2.1(prettier@3.6.2)
+      "@teo-garcia/tsconfig-shared":
+        specifier: file:../tsconfig-shared
+        version: file:../tsconfig-shared
       "@types/express":
         specifier: ^5.0.3
         version: 5.0.3
@@ -1756,8 +1759,11 @@ packages:
       }
     engines: { node: ">=14.16" }
 
-  "@teo-garcia/eslint-config-shared@file:../eslint-config-shared":
-    resolution: { directory: ../eslint-config-shared, type: directory }
+  "@teo-garcia/eslint-config-shared@0.2.5":
+    resolution:
+      {
+        integrity: sha512-M3FFSOeSPQPFzW+OOnU4JbKmDLUzIEM8dv3CawV4IlWrKjJ24jbq9JTzB4lx+u6qqH/pG7Quu7BDzK4270MmtA==,
+      }
     engines: { node: ">=21" }
     peerDependencies:
       "@eslint/compat": ^1.3.1
@@ -1780,11 +1786,17 @@ packages:
       eslint-plugin-unicorn: ^59.0.1
       globals: ^16.0.0
 
-  "@teo-garcia/prettier-config-shared@file:../prettier-config-shared":
-    resolution: { directory: ../prettier-config-shared, type: directory }
+  "@teo-garcia/prettier-config-shared@0.2.1":
+    resolution:
+      {
+        integrity: sha512-3XpehkTLLKRSjjrgRq9s4TMdFUCvcLSbaKyhRUUnDHzPi5UZJ8T5Yw/HLfmI5ccpD4mO3/3GKoD3Suy/xPJpNQ==,
+      }
     engines: { node: ">=20.11" }
     peerDependencies:
       prettier: ^3.0.0
+
+  "@teo-garcia/tsconfig-shared@file:../tsconfig-shared":
+    resolution: { directory: ../tsconfig-shared, type: directory }
 
   "@tokenizer/inflate@0.2.7":
     resolution:
@@ -9143,7 +9155,7 @@ snapshots:
     dependencies:
       defer-to-connect: 2.0.1
 
-  "@teo-garcia/eslint-config-shared@file:../eslint-config-shared(d4052e6a61c2db363c90bf2dd794498d)":
+  "@teo-garcia/eslint-config-shared@0.2.5(d4052e6a61c2db363c90bf2dd794498d)":
     dependencies:
       "@eslint/compat": 1.3.1(eslint@9.30.1(jiti@2.4.2))
       "@eslint/eslintrc": 3.3.1
@@ -9165,9 +9177,11 @@ snapshots:
       eslint-plugin-unicorn: 59.0.1(eslint@9.30.1(jiti@2.4.2))
       globals: 16.3.0
 
-  "@teo-garcia/prettier-config-shared@file:../prettier-config-shared(prettier@3.6.2)":
+  "@teo-garcia/prettier-config-shared@0.2.1(prettier@3.6.2)":
     dependencies:
       prettier: 3.6.2
+
+  "@teo-garcia/tsconfig-shared@file:../tsconfig-shared": {}
 
   "@tokenizer/inflate@0.2.7":
     dependencies:

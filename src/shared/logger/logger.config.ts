@@ -37,7 +37,8 @@ export const createLoggerConfig = (
 ): winston.LoggerOptions => {
   const isProduction = environment === 'production'
 
-  const formatMessage = winston.format((info: TransformableInfo) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const formatMessage = winston.format((info: any) => {
     const { level, message, context, trace, ...meta } = info
     return {
       timestamp: new Date().toISOString(),

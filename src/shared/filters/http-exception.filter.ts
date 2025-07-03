@@ -70,7 +70,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         timestamp,
         path,
         method,
-        message: exceptionResponse,
+        message:
+          typeof exceptionResponse === 'string'
+            ? exceptionResponse
+            : 'An error occurred',
         error: exception.name,
       }
     }
