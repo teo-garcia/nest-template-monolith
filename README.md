@@ -1,96 +1,79 @@
-# NestJS Monolith Template
+# 🛠️ DevKit
 
-A comprehensive template for building scalable monolithic applications with
-NestJS. This template provides a production-ready foundation with PostgreSQL
-database, Redis cache, and automated development setup.
+A comprehensive collection of shell scripts for managing fullstack development
+environments, databases, and Docker setups.
 
-## Features
+## 📦 Features
 
-- **Database**: PostgreSQL with Prisma ORM and data models for Users and Books
-- **Caching**: Redis for performance optimization
-- **Architecture**: Clean, modular structure with best practices
-- **API**: Built-in Swagger documentation and validation
-- **Authentication**: JWT-based auth with role-based access control
-- **Logging & Error Handling**: Comprehensive system included
-- **Testing**: Complete Jest setup for all test types
-- **DevOps**: Docker-based development with automated scripts
-- **Deployment**: CI/CD configuration included
+- 🗄️ **Database Management**: Backup, restore, migrations, and initialization
+  scripts
+- 🐳 **Docker Utilities**: Container management, cleanup, and environment setup
+- 🚀 **Development Tools**: Environment setup, project initialization
+- 📋 **Project Templates**: Quick-start templates for various tech stacks
 
-## Quick Setup
-
-### Prerequisites
-
-- Docker and Docker Compose
-- Node.js (v22+) and pnpm (v9+)
-
-### One-Command Setup
+## 🚀 Quick Start
 
 ```bash
-# Complete setup from scratch (database, Redis, app)
-./scripts/dev/setup.sh --clean-all --init-db --force
+# Clone the repository
+git clone https://github.com/teo-garcia/devkit.git
+
+# Make scripts executable
+chmod +x scripts/**/*.sh
+
+# View available commands
+./scripts/dev/help.sh
 ```
 
-### Start Development Server
-
-```bash
-# Start the application in development mode
-pnpm start:dev
-```
-
-## 📚 Documentation
-
-For detailed information, see the documentation in the `docs/` folder:
-
-- **[01_DESIGN.md](./docs/01_DESIGN.md)** - Architecture and design principles
-- **[02_DEVELOPMENT.md](./docs/02_DEVELOPMENT.md)** - Development workflow
-- **[03_TESTING.md](./docs/03_TESTING.md)** - Testing strategy
-- **[04_DEPLOYMENT.md](./docs/04_DEPLOYMENT.md)** - Deployment guidelines
-- **[05_OPERATIONAL_SCRIPTS.md](./docs/05_OPERATIONAL_SCRIPTS.md)** - **Complete
-  scripts reference** 📋
-- **[06_DATA_MODELS.md](./docs/06_DATA_MODELS.md)** - Database models
-
-> **📋 All script documentation is centralized in
-> [05_OPERATIONAL_SCRIPTS.md](./docs/05_OPERATIONAL_SCRIPTS.md)** This is the
-> single source of truth for all operational scripts usage, options, and
-> workflows.
-
-## 🚀 Scalability
-
-This template is designed to scale from **starter apps to robust enterprise
-applications**:
-
-- **Modular Architecture**: Add features without breaking existing code
-- **Docker Containerization**: Easy horizontal scaling
-- **Database Migrations**: Versioned schema evolution
-- **Caching Layer**: Redis for performance optimization
-- **Monitoring Ready**: Structured logging and health checks
-- **Type Safety**: TypeScript prevents runtime errors at scale
-
-## 🛠️ Scripts Overview
-
-All operational scripts are located in `scripts/` and organized by purpose:
+## 📂 Structure
 
 ```
-scripts/
-├── dev/           # 🛠️ Development workflow automation
-├── docker/        # 🐳 Docker container management
-└── db/            # 🗄️ Database operations
+devkit/
+├── scripts/           # Core utility scripts
+│   ├── db/           # Database management
+│   ├── docker/       # Docker operations
+│   └── dev/          # Development utilities
+└── templates/        # Project templates
+    ├── nest/         # NestJS templates
+    ├── next/         # Next.js templates
+    └── more...       # Additional templates
 ```
 
-**Most common commands:**
+## 🗄️ Database Scripts
 
-```bash
-# Complete setup (new developers)
-./scripts/dev/setup.sh --clean-all --init-db --force
+- `backup.sh`: Create and manage database backups
+- `init-db.sh`: Initialize databases with proper permissions
+- `migrate.sh`: Manage database migrations
+- `restore.sh`: Restore databases from backups
 
-# Daily workflow
-./scripts/dev/start.sh          # Start services
-./scripts/dev/stop.sh           # Stop services
+## 🐳 Docker Scripts
 
-# Database operations
-./scripts/db/migrate.sh dev add_feature  # Create migration
-./scripts/db/backup.sh                   # Create backup
-```
+- `docker.sh`: Docker-compose wrapper with common commands
+- `prune.sh`: Clean up Docker resources
 
-**📖 For complete script documentation, see
-[docs/05_OPERATIONAL_SCRIPTS.md](./docs/05_OPERATIONAL_SCRIPTS.md)**
+## 🛠️ Development Scripts
+
+- `env-setup.sh`: Configure development environments
+- `setup.sh`: Project initialization and dependencies
+- `start.sh`: Start development services
+- `stop.sh`: Stop development services
+
+## 📋 Templates
+
+The `templates/` directory contains starter templates for various tech stacks:
+
+- NestJS monolith setup
+- Next.js frontend setup
+- More templates coming soon...
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
+for details.
