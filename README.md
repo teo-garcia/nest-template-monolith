@@ -1,79 +1,106 @@
-# 🛠️ DevKit
+# NestJS Monolith Template
 
-A comprehensive collection of shell scripts for managing fullstack development
-environments, databases, and Docker setups.
+Production-ready NestJS monolith with health checks, metrics, structured
+logging, and comprehensive DevOps tooling.
 
-## 📦 Features
+## Requirements
 
-- 🗄️ **Database Management**: Backup, restore, migrations, and initialization
-  scripts
-- 🐳 **Docker Utilities**: Container management, cleanup, and environment setup
-- 🚀 **Development Tools**: Environment setup, project initialization
-- 📋 **Project Templates**: Quick-start templates for various tech stacks
+- Node 22+
+- pnpm 9
+- Docker & Docker Compose
 
-## 🚀 Quick Start
+## Installation
+
+1. Get the template:
 
 ```bash
-# Clone the repository
-git clone https://github.com/teo-garcia/devkit.git
-
-# Make scripts executable
-chmod +x scripts/**/*.sh
-
-# View available commands
-./scripts/dev/help.sh
+npx degit teo-garcia/templates/nest-template-monolith my-app
+cd my-app
 ```
 
-## 📂 Structure
+2. Install dependencies:
 
-```
-devkit/
-├── scripts/           # Core utility scripts
-│   ├── db/           # Database management
-│   ├── docker/       # Docker operations
-│   └── dev/          # Development utilities
-└── templates/        # Project templates
-    ├── nest/         # NestJS templates
-    ├── next/         # Next.js templates
-    └── more...       # Additional templates
+```bash
+pnpm install
 ```
 
-## 🗄️ Database Scripts
+3. Configure environment:
 
-- `backup.sh`: Create and manage database backups
-- `init-db.sh`: Initialize databases with proper permissions
-- `migrate.sh`: Manage database migrations
-- `restore.sh`: Restore databases from backups
+```bash
+cp .env.example .env
+# Edit .env with your settings
+```
 
-## 🐳 Docker Scripts
+4. Start services:
 
-- `docker.sh`: Docker-compose wrapper with common commands
-- `prune.sh`: Clean up Docker resources
+```bash
+docker-compose up -d
+pnpm db:migrate
+pnpm start:dev
+```
 
-## 🛠️ Development Scripts
+## Features
 
-- `env-setup.sh`: Configure development environments
-- `setup.sh`: Project initialization and dependencies
-- `start.sh`: Start development services
-- `stop.sh`: Stop development services
+- **NestJS** - Progressive Node.js framework
+- **Prisma ORM** - Type-safe database access with migrations
+- **Health Checks** - `/health`, `/health/live`, `/health/ready` endpoints
+- **Prometheus Metrics** - `/metrics` endpoint for monitoring
+- **Request Tracing** - Request ID propagation for distributed tracing
+- **Structured Logging** - JSON logs with context
+- **Docker** - Multi-stage production builds
+- **GitHub Actions** - CI/CD with testing and security scanning
 
-## 📋 Templates
+## Scripts
 
-The `templates/` directory contains starter templates for various tech stacks:
+```bash
+pnpm start:dev      # Development with hot reload
+pnpm build          # Production build
+pnpm start:prod     # Run production build
+pnpm test           # Run unit tests
+pnpm test:e2e       # Run e2e tests
+pnpm lint:es        # ESLint check
+pnpm lint:ts        # TypeScript type check
+pnpm format         # Format code with Prettier
+pnpm db:generate    # Generate Prisma client
+pnpm db:migrate     # Run database migrations
+```
 
-- NestJS monolith setup
-- Next.js frontend setup
-- More templates coming soon...
+## Docker
 
-## 🤝 Contributing
+```bash
+# Development
+docker-compose up
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+# Production build
+docker build -f docker/Dockerfile -t my-app .
+docker run -p 3000:3000 my-app
+```
 
-## 📝 License
+## Project Structure
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
-for details.
+```
+src/
+├── config/              # Environment configuration
+├── shared/
+│   ├── filters/         # Global exception handling
+│   ├── health/          # Health check endpoints
+│   ├── interceptors/    # Request/response transformation
+│   ├── logger/          # Structured logging
+│   ├── metrics/         # Prometheus metrics
+│   ├── pipes/           # Input validation
+│   └── prisma/          # Database access
+└── modules/
+    ├── auth/            # Authentication
+    └── users/           # User management
+```
+
+## Endpoints
+
+- `GET /health` - Comprehensive health status
+- `GET /health/live` - Liveness probe (Kubernetes)
+- `GET /health/ready` - Readiness probe (checks DB, Redis)
+- `GET /metrics` - Prometheus metrics
+
+## License
+
+MIT
