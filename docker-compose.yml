@@ -18,6 +18,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    networks:
+      - nest-network
 
   # Redis for caching and rate limiting
   redis:
@@ -28,12 +31,55 @@ services:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
-    command: redis-server --appendonly yes --requirepass redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis}
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "--pass", "${REDIS_PASSWORD:-redis}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 5s
+    networks:
+      - nest-network
+
+  # NestJS Application (optional - for full containerized development)
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    container_name: nest_monolith_app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://${DATABASE_USER:-postgres}:${DATABASE_PASSWORD:-postgres}@db:5432/${DATABASE_NAME:-nest_monolith}?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis}
+      PORT: 3000
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    volumes:
+      # Mount source for hot reload
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000/health/live', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    networks:
+      - nest-network
 
   # pgAdmin - Database management tool (optional)
   pgadmin:
@@ -50,8 +96,14 @@ services:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - db
+    networks:
+      - nest-network
 
 volumes:
   postgres_data:
   redis_data:
   pgadmin_data:
+
+networks:
+  nest-network:
+    driver: bridge

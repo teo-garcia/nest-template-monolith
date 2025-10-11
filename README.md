@@ -1,7 +1,6 @@
 # NestJS Monolith Template
 
-Production-ready NestJS monolith with health checks, metrics, structured
-logging, and comprehensive DevOps tooling.
+Production-ready NestJS monolith with health checks, metrics, structured logging, and comprehensive DevOps tooling.
 
 ## Requirements
 
@@ -11,29 +10,11 @@ logging, and comprehensive DevOps tooling.
 
 ## Installation
 
-1. Get the template:
-
 ```bash
 npx degit teo-garcia/templates/nest-template-monolith my-app
 cd my-app
-```
-
-2. Install dependencies:
-
-```bash
 pnpm install
-```
-
-3. Configure environment:
-
-```bash
 cp .env.example .env
-# Edit .env with your settings
-```
-
-4. Start services:
-
-```bash
 docker-compose up -d
 pnpm db:migrate
 pnpm start:dev
@@ -65,17 +46,6 @@ pnpm db:generate    # Generate Prisma client
 pnpm db:migrate     # Run database migrations
 ```
 
-## Docker
-
-```bash
-# Development
-docker-compose up
-
-# Production build
-docker build -f docker/Dockerfile -t my-app .
-docker run -p 3000:3000 my-app
-```
-
 ## Project Structure
 
 ```
@@ -93,13 +63,6 @@ src/
     ├── auth/            # Authentication
     └── users/           # User management
 ```
-
-## Endpoints
-
-- `GET /health` - Comprehensive health status
-- `GET /health/live` - Liveness probe (Kubernetes)
-- `GET /health/ready` - Readiness probe (checks DB, Redis)
-- `GET /metrics` - Prometheus metrics
 
 ## License
 

@@ -3,8 +3,12 @@ import { NestFactory } from '@nestjs/core'
 
 import { AppModule } from './app.module'
 import { GlobalExceptionFilter } from './shared/filters'
-import { TransformInterceptor } from './shared/interceptors'
+import {
+  RequestIdInterceptor,
+  TransformInterceptor,
+} from './shared/interceptors'
 import { AppLogger } from './shared/logger/logger.service'
+import { MetricsInterceptor } from './shared/metrics'
 import { GlobalValidationPipe } from './shared/pipes'
 
 async function bootstrap(): Promise<void> {
@@ -25,14 +29,27 @@ async function bootstrap(): Promise<void> {
   app.useLogger(logger)
 
   // Set global prefix if configured
+  // Exclude health and metrics endpoints from the prefix
   if (apiPrefix) {
-    app.setGlobalPrefix(apiPrefix)
+    app.setGlobalPrefix(apiPrefix, {
+      exclude: ['health', 'health/live', 'health/ready', 'metrics'],
+    })
   }
 
   // Register global pipes, filters, and interceptors
+  // Order matters: Request ID should be first to be available for other interceptors
   app.useGlobalPipes(new GlobalValidationPipe())
   app.useGlobalFilters(new GlobalExceptionFilter())
-  app.useGlobalInterceptors(new TransformInterceptor())
+  app.useGlobalInterceptors(
+    new RequestIdInterceptor(), // First: Generate request ID
+    new TransformInterceptor(), // Second: Transform responses
+    app.get(MetricsInterceptor) // Third: Record metrics
+  )
+
+  // Enable graceful shutdown hooks
+  // This ensures that the application cleans up resources properly on shutdown
+  // Prisma will automatically handle cleanup via onModuleDestroy
+  app.enableShutdownHooks()
 
   // Start the application
   await app.listen(port)
@@ -42,6 +59,15 @@ async function bootstrap(): Promise<void> {
   const fullUrl = apiPrefix ? `${baseUrl}/${apiPrefix}` : baseUrl
   logger.log(`Application is running on: ${fullUrl} ✨`)
 }
+
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM signal received: closing HTTP server')
+})
+
+process.on('SIGINT', () => {
+  console.log('SIGINT signal received: closing HTTP server')
+})
 
 // eslint-disable-next-line unicorn/prefer-top-level-await
 bootstrap().catch((error) => {
