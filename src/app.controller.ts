@@ -53,6 +53,7 @@ export class AppController {
       environment: string
     }
     status: 'healthy' | 'degraded' | 'unhealthy'
+    timestamp: string
     services: {
       database: 'healthy' | 'unhealthy'
       validation: 'operational'
@@ -74,6 +75,7 @@ export class AppController {
         environment,
       },
       status: databaseHealthy ? 'healthy' : 'degraded',
+      timestamp: new Date().toISOString(),
       services: {
         database: databaseHealthy ? 'healthy' : 'unhealthy',
         validation: 'operational',
