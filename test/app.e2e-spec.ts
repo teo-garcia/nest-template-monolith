@@ -21,7 +21,7 @@ describe('AppController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect('Hello World!')
+      .expect('NestJS Monolith Template - API is running! 🚀')
 
     // Explicit assertion to satisfy sonarjs/assertions-in-tests
     expect(response.status).toBe(200)
