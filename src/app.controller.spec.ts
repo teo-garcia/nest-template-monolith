@@ -37,8 +37,10 @@ describe('AppController', () => {
   })
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!')
+    it('should return welcome message', () => {
+      expect(appController.getHello()).toBe(
+        'NestJS Monolith Template - API is running! 🚀'
+      )
     })
   })
 })
