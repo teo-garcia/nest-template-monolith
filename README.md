@@ -1,69 +1,134 @@
-# NestJS Monolith Template
+<div align="center">
 
-Production-ready NestJS monolith with health checks, metrics, structured logging, and comprehensive DevOps tooling.
+# NestJS Template Monolith
 
-## Requirements
+**Production-ready NestJS monolith with Prisma, health checks, metrics, and
+DevOps tooling**
 
-- Node 22+
-- pnpm 9
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/Node-22+-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+[![pnpm](https://img.shields.io/badge/pnpm-9+-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
+[![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com)
+[![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma&logoColor=white)](https://prisma.io)
+
+Part of the [@teo-garcia/templates](https://github.com/teo-garcia/templates)
+ecosystem
+
+</div>
+
+---
+
+## ✨ Features
+
+| Category          | Technologies                                          |
+| ----------------- | ----------------------------------------------------- |
+| **Framework**     | NestJS 11 with modular architecture                   |
+| **Database**      | Prisma ORM with PostgreSQL                            |
+| **Observability** | Health checks, Prometheus metrics, structured logging |
+| **Type Safety**   | TypeScript with strict mode                           |
+| **Testing**       | Jest for unit and E2E tests                           |
+| **Code Quality**  | ESLint, Prettier, Husky, Commitlint                   |
+| **DevOps**        | Docker, GitHub Actions CI/CD                          |
+
+## 📋 Requirements
+
+- Node.js 22+
+- pnpm 9+
 - Docker & Docker Compose
 
-## Installation
+## 🚀 Quick Start
 
 ```bash
-npx degit teo-garcia/templates/nest-template-monolith my-app
-cd my-app
+# Clone the template
+npx degit teo-garcia/nest-template-monolith my-api
+cd my-api
+
+# Install dependencies
 pnpm install
+
+# Setup environment
 cp .env.example .env
+
+# Start infrastructure
 docker-compose up -d
+
+# Run database migrations
 pnpm db:migrate
+
+# Start development server
 pnpm start:dev
 ```
 
-## Features
+Open [http://localhost:3000](http://localhost:3000) to see your API.
 
-- **NestJS** - Progressive Node.js framework
-- **Prisma ORM** - Type-safe database access with migrations
-- **Health Checks** - `/health`, `/health/live`, `/health/ready` endpoints
-- **Prometheus Metrics** - `/metrics` endpoint for monitoring
-- **Request Tracing** - Request ID propagation for distributed tracing
-- **Structured Logging** - JSON logs with context
-- **Docker** - Multi-stage production builds
-- **GitHub Actions** - CI/CD with testing and security scanning
-
-## Scripts
-
-```bash
-pnpm start:dev      # Development with hot reload
-pnpm build          # Production build
-pnpm start:prod     # Run production build
-pnpm test           # Run unit tests
-pnpm test:e2e       # Run e2e tests
-pnpm lint:es        # ESLint check
-pnpm lint:ts        # TypeScript type check
-pnpm format         # Format code with Prettier
-pnpm db:generate    # Generate Prisma client
-pnpm db:migrate     # Run database migrations
-```
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 src/
-├── config/              # Environment configuration
+├── config/                 # Environment configuration
 ├── shared/
-│   ├── filters/         # Global exception handling
-│   ├── health/          # Health check endpoints
-│   ├── interceptors/    # Request/response transformation
-│   ├── logger/          # Structured logging
-│   ├── metrics/         # Prometheus metrics
-│   ├── pipes/           # Input validation
-│   └── prisma/          # Database access
+│   ├── filters/            # Global exception handling
+│   ├── health/             # Health check endpoints
+│   ├── interceptors/       # Request/response transformation
+│   ├── logger/             # Structured logging (Winston)
+│   ├── metrics/            # Prometheus metrics
+│   ├── pipes/              # Input validation
+│   └── prisma/             # Database client
 └── modules/
-    ├── auth/            # Authentication
-    └── users/           # User management
+    ├── auth/               # Authentication module
+    └── users/              # User management module
 ```
 
-## License
+## 🔧 Scripts
+
+| Command            | Description              |
+| ------------------ | ------------------------ |
+| `pnpm start:dev`   | Start with hot reload    |
+| `pnpm build`       | Create production build  |
+| `pnpm start:prod`  | Run production server    |
+| `pnpm test`        | Run unit tests           |
+| `pnpm test:e2e`    | Run E2E tests            |
+| `pnpm lint:es`     | Lint and fix with ESLint |
+| `pnpm lint:ts`     | TypeScript type checking |
+| `pnpm format`      | Format with Prettier     |
+| `pnpm db:migrate`  | Run database migrations  |
+| `pnpm db:generate` | Generate Prisma client   |
+| `pnpm db:studio`   | Open Prisma Studio       |
+
+## 🏥 Health & Metrics
+
+| Endpoint            | Description                |
+| ------------------- | -------------------------- |
+| `GET /health`       | Full health status         |
+| `GET /health/live`  | Kubernetes liveness probe  |
+| `GET /health/ready` | Kubernetes readiness probe |
+| `GET /metrics`      | Prometheus metrics         |
+
+## 📦 Shared Configs
+
+This template uses standardized configurations from the ecosystem:
+
+- [`@teo-garcia/eslint-config-shared`](https://github.com/teo-garcia/eslint-config-shared) -
+  ESLint rules
+- [`@teo-garcia/prettier-config-shared`](https://github.com/teo-garcia/prettier-config-shared) -
+  Prettier formatting
+- [`@teo-garcia/tsconfig-shared`](https://github.com/teo-garcia/tsconfig-shared) -
+  TypeScript settings
+
+## 🔗 Related Templates
+
+| Template                                                                               | Description                    |
+| -------------------------------------------------------------------------------------- | ------------------------------ |
+| [nest-template-microservice](https://github.com/teo-garcia/nest-template-microservice) | NestJS microservice with Redis |
+| [react-template-next](https://github.com/teo-garcia/react-template-next)               | Next.js frontend               |
+| [react-template-rr](https://github.com/teo-garcia/react-template-rr)                   | React Router SPA               |
+
+## 📄 License
 
 MIT
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ by <a href="https://github.com/teo-garcia">teo-garcia</a></sub>
+</div>

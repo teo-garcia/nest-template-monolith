@@ -59,13 +59,14 @@ export class HealthController {
    *
    * Comprehensive health check including all dependencies.
    * Provides detailed status information for monitoring and debugging.
+   * Currently equivalent to readiness check, but can be extended with more checks.
    */
   @Get()
   @HealthCheck()
   check() {
-    return this.health.check([
-      // Database health check
-      async () => this.prismaHealth.pingCheck('database', this.prisma),
-    ])
+    // Delegates to readiness check for now
+    // In the future, this could include additional monitoring checks
+    // that don't affect readiness (e.g., non-critical dependencies, metrics)
+    return this.checkReadiness()
   }
 }

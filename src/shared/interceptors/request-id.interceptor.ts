@@ -39,11 +39,12 @@ export class RequestIdInterceptor implements NestInterceptor {
 
     // Extract or generate request ID
     // Check the X-Request-ID header first (common convention)
-    // If not present, generate a new UUID
+    // If not present or empty, generate a new UUID
+    const existingRequestId = request.headers['x-request-id']
     const requestId =
-      request.headers['x-request-id'] ||
-      request.headers['x-request-id'] ||
-      randomUUID()
+      typeof existingRequestId === 'string' && existingRequestId.length > 0
+        ? existingRequestId
+        : randomUUID()
 
     // Attach the request ID to the request object
     // This makes it accessible in controllers, services, and guards
@@ -56,6 +57,3 @@ export class RequestIdInterceptor implements NestInterceptor {
     return next.handle()
   }
 }
-
-
-

@@ -34,6 +34,3 @@ export class MetricsController {
     return await this.metricsService.getMetrics()
   }
 }
-
-
-
