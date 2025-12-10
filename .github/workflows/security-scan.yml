@@ -1,13 +1,9 @@
 name: Security Scan
 
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
   schedule:
-    # Run every Monday at 9:00 AM UTC
-    - cron: "0 9 * * 1"
+    # Run first Monday of each month at 9:00 AM UTC
+    - cron: "0 9 1-7 * 1"
   workflow_dispatch:
 
 jobs:
@@ -35,7 +31,7 @@ jobs:
         if: always()
         with:
           sarif_file: "trivy-fs-results.sarif"
-          category: "trivy-filesystem"
+          category: "trivy-fs"
 
       - name: Run Trivy vulnerability scanner on Docker image
         uses: aquasecurity/trivy-action@master
@@ -51,7 +47,7 @@ jobs:
         if: always()
         with:
           sarif_file: "trivy-docker-results.sarif"
-          category: "trivy-dockerfile"
+          category: "trivy-docker"
 
   dependency-review:
     name: Dependency Review
