@@ -18,10 +18,8 @@ async function bootstrap(): Promise<void> {
 
   // Get config values
   const configService = app.get(ConfigService)
-  const port = configService.get<number>('app.port') ?? 3000
-  const apiPrefix = configService.get<string>('app.apiPrefix') ?? 'api'
-
-  console.log(configService.get<number>('app.port'))
+  const port = configService.get<number>('config.app.port') ?? 3000
+  const apiPrefix = configService.get<string>('config.app.apiPrefix') ?? 'api'
 
   // Set up logger
   const logger = app.get(AppLogger)

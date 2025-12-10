@@ -6,6 +6,7 @@ import {
 } from '@nestjs/terminus'
 
 import { PrismaService } from '../prisma'
+import { RedisHealthIndicator } from './redis.health'
 
 /**
  * Health Check Controller
@@ -18,7 +19,8 @@ export class HealthController {
   constructor(
     private health: HealthCheckService,
     private prismaHealth: PrismaHealthIndicator,
-    private prisma: PrismaService
+    private prisma: PrismaService,
+    private redisHealth: RedisHealthIndicator
   ) {}
 
   /**
@@ -41,7 +43,7 @@ export class HealthController {
    * Readiness Probe
    *
    * Checks if the application is ready to accept traffic.
-   * Validates that all critical dependencies (database, cache, etc.) are available.
+   * Validates that all critical dependencies (database, cache) are available.
    * Used by load balancers and orchestrators to route traffic only to ready instances.
    */
   @Get('ready')
@@ -49,8 +51,13 @@ export class HealthController {
   checkReadiness() {
     return this.health.check([
       // Check database connectivity
-      // This uses Prisma to execute a simple query: SELECT 1
-      async () => this.prismaHealth.pingCheck('database', this.prisma),
+      // Uses Prisma to execute a simple query: SELECT 1
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async () => this.prismaHealth.pingCheck('database', this.prisma as any),
+
+      // Check Redis connectivity
+      // Sends a PING command and expects PONG response
+      async () => this.redisHealth.isHealthy('redis'),
     ])
   }
 
@@ -59,14 +66,10 @@ export class HealthController {
    *
    * Comprehensive health check including all dependencies.
    * Provides detailed status information for monitoring and debugging.
-   * Currently equivalent to readiness check, but can be extended with more checks.
    */
   @Get()
   @HealthCheck()
   check() {
-    // Delegates to readiness check for now
-    // In the future, this could include additional monitoring checks
-    // that don't affect readiness (e.g., non-critical dependencies, metrics)
     return this.checkReadiness()
   }
 }

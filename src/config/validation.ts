@@ -1,4 +1,4 @@
-import { plainToInstance, Type } from 'class-transformer'
+import { plainToClass } from 'class-transformer'
 import {
   IsBoolean,
   IsEnum,
@@ -8,148 +8,138 @@ import {
   validateSync,
 } from 'class-validator'
 
-export class EnvironmentVariables {
+/**
+ * Environment Variables Validation Schema
+ *
+ * Validates that all required environment variables are present and correctly typed.
+ * The application will fail to start if validation fails, preventing runtime errors.
+ */
+
+enum Environment {
+  Development = 'development',
+  Production = 'production',
+  Test = 'test',
+  Staging = 'staging',
+}
+
+class EnvironmentVariables {
   // Application
-  @IsEnum(['development', 'production', 'test', 'staging'], {
-    message: 'NODE_ENV must be one of: development, production, test, staging',
-  })
+  @IsEnum(Environment)
   @IsOptional()
-  NODE_ENV: string = 'development'
+  NODE_ENV?: Environment = Environment.Development
 
   @IsNumber()
   @IsOptional()
-  @Type(() => Number)
-  PORT: number = 3000
+  PORT?: number = 3000
 
   @IsString()
   @IsOptional()
-  API_PREFIX: string = 'api'
+  API_PREFIX?: string = 'api'
 
   @IsString()
   @IsOptional()
-  APP_NAME: string = 'NestJS Monolith Template'
+  APP_NAME?: string
 
   @IsString()
   @IsOptional()
-  API_VERSION: string = '1'
+  API_VERSION?: string
 
-  // Database
+  // Database (required for monolith)
   @IsString()
   @IsOptional()
-  DATABASE_HOST: string = 'localhost'
+  DATABASE_URL?: string
+
+  @IsString()
+  @IsOptional()
+  DATABASE_HOST?: string
 
   @IsNumber()
   @IsOptional()
-  @Type(() => Number)
-  DATABASE_PORT: number = 5432
+  DATABASE_PORT?: number
 
   @IsString()
   @IsOptional()
-  DATABASE_USER: string = 'postgres'
+  DATABASE_USER?: string
 
   @IsString()
   @IsOptional()
-  DATABASE_PASSWORD: string = 'postgres'
+  DATABASE_PASSWORD?: string
 
   @IsString()
   @IsOptional()
-  DATABASE_NAME: string = 'nest_monolith'
+  DATABASE_NAME?: string
 
-  @IsBoolean()
+  // Redis (for caching)
+  @IsString()
   @IsOptional()
-  @Type(() => Boolean)
-  DATABASE_SYNCHRONIZE: boolean = false
+  REDIS_HOST?: string = 'localhost'
 
-  @IsBoolean()
+  @IsNumber()
   @IsOptional()
-  @Type(() => Boolean)
-  DATABASE_LOGGING: boolean = true
+  REDIS_PORT?: number = 6379
+
+  @IsString()
+  @IsOptional()
+  REDIS_PASSWORD?: string
+
+  @IsNumber()
+  @IsOptional()
+  REDIS_TTL?: number
 
   // JWT Authentication
   @IsString()
-  JWT_SECRET!: string
+  @IsOptional()
+  JWT_SECRET?: string
 
   @IsString()
   @IsOptional()
-  JWT_EXPIRATION: string = '1d'
+  JWT_EXPIRATION?: string
 
   @IsString()
   @IsOptional()
-  JWT_REFRESH_EXPIRATION: string = '7d'
-
-  // Redis Cache (Optional)
-  @IsString()
-  @IsOptional()
-  REDIS_HOST: string = 'localhost'
-
-  @IsNumber()
-  @IsOptional()
-  @Type(() => Number)
-  REDIS_PORT: number = 6379
-
-  @IsString()
-  @IsOptional()
-  REDIS_PASSWORD: string = ''
-
-  @IsNumber()
-  @IsOptional()
-  @Type(() => Number)
-  REDIS_TTL: number = 3600
-
-  // Swagger Documentation
-  @IsString()
-  @IsOptional()
-  SWAGGER_TITLE: string = 'NestJS Monolith API'
-
-  @IsString()
-  @IsOptional()
-  SWAGGER_DESCRIPTION: string = 'API Documentation for NestJS Monolith Template'
-
-  @IsString()
-  @IsOptional()
-  SWAGGER_VERSION: string = '1.0'
-
-  @IsString()
-  @IsOptional()
-  SWAGGER_PATH: string = 'docs'
+  JWT_REFRESH_EXPIRATION?: string
 
   // Logging
-  @IsEnum(['error', 'warn', 'info', 'debug', 'verbose'], {
-    message: 'LOG_LEVEL must be one of: error, warn, info, debug, verbose',
-  })
+  @IsString()
   @IsOptional()
-  LOG_LEVEL: string = 'debug'
+  LOG_LEVEL?: string = 'debug'
 
-  @IsEnum(['console', 'file'], {
-    message: 'LOG_OUTPUT must be one of: console, file',
-  })
+  @IsString()
   @IsOptional()
-  LOG_OUTPUT: string = 'console'
+  LOG_OUTPUT?: string
 
   // CORS
   @IsBoolean()
   @IsOptional()
-  @Type(() => Boolean)
-  CORS_ENABLED: boolean = true
+  CORS_ENABLED?: boolean
 
   @IsString()
   @IsOptional()
-  CORS_ORIGIN: string = 'http://localhost:3000'
+  CORS_ORIGIN?: string
 
   // Rate Limiting
   @IsNumber()
   @IsOptional()
-  @Type(() => Number)
-  THROTTLE_TTL: number = 60
+  THROTTLE_TTL?: number
 
   @IsNumber()
   @IsOptional()
-  @Type(() => Number)
-  THROTTLE_LIMIT: number = 100
+  THROTTLE_LIMIT?: number
+
+  // Metrics
+  @IsBoolean()
+  @IsOptional()
+  METRICS_ENABLED?: boolean
 }
 
+/**
+ * Validate environment variables
+ *
+ * @param config - Raw environment variables
+ * @returns Validated configuration
+ */
 export function validate(config: Record<string, unknown>) {
-  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
+  const validatedConfig = plainToClass(EnvironmentVariables, config, {
     enableImplicitConversion: true,
   })
 

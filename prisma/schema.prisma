@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma Schema
+// Documentation: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client"
@@ -10,39 +10,25 @@ datasource db {
   provider = "postgresql"
 }
 
-// Define your models here
-
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  password  String
-  role      Role     @default(USER)
-  books     Book[]   // Relation to books created by this user
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Book {
-  id          Int       @id @default(autoincrement())
+// Task Model
+// A simple entity demonstrating CRUD operations with caching
+model Task {
+  id          String   @id @default(cuid())
   title       String
   description String?
-  author      User      @relation(fields: [authorId], references: [id])
-  authorId    Int
-  isbn        String?   @unique
-  publishDate DateTime?
-  pageCount   Int?
-  category    String?
-  tags        String[]
-  available   Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  status      TaskStatus @default(PENDING)
+  priority    Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
-  @@index([authorId])
-  @@index([category])
+  @@index([status])
+  @@index([priority])
+  @@map("tasks")
 }
 
-enum Role {
-  USER
-  ADMIN
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
 }

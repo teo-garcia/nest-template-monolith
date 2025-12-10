@@ -1,20 +1,23 @@
 import { Module } from '@nestjs/common'
 import { TerminusModule } from '@nestjs/terminus'
 
-import { PrismaModule } from '../prisma'
 import { HealthController } from './health.controller'
+import { RedisHealthIndicator } from './redis.health'
 
 /**
  * Health Module
  *
  * Provides health check endpoints for the application.
- * Integrates with @nestjs/terminus for standardized health checks.
+ * Uses @nestjs/terminus for standardized health checks.
+ *
+ * Endpoints:
+ * - GET /health/live  - Liveness probe (is the app running?)
+ * - GET /health/ready - Readiness probe (are dependencies available?)
+ * - GET /health       - Comprehensive health check
  */
 @Module({
-  imports: [
-    TerminusModule, // NestJS health check utilities
-    PrismaModule, // Database health checks
-  ],
+  imports: [TerminusModule],
   controllers: [HealthController],
+  providers: [RedisHealthIndicator],
 })
 export class HealthModule {}

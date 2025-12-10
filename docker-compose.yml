@@ -8,7 +8,6 @@ services:
       POSTGRES_USER: ${DATABASE_USER:-postgres}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
       POSTGRES_DB: ${DATABASE_NAME:-nest_monolith}
-      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "${DATABASE_PORT:-5432}:5432"
     volumes:
