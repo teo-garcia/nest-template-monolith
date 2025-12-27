@@ -28,13 +28,6 @@ export default registerAs('config', () => ({
     logging: process.env.DATABASE_LOGGING === 'true',
   },
 
-  // JWT Authentication
-  jwt: {
-    secret: process.env.JWT_SECRET || 'change_this_secret_in_production',
-    expiration: process.env.JWT_EXPIRATION || '1d',
-    refreshExpiration: process.env.JWT_REFRESH_EXPIRATION || '7d',
-  },
-
   // Redis Cache
   redis: {
     host: process.env.REDIS_HOST || 'localhost',

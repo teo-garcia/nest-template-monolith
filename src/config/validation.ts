@@ -94,19 +94,6 @@ class EnvironmentVariables {
   @IsOptional()
   REDIS_TTL?: number
 
-  // JWT Authentication
-  @IsString()
-  @IsOptional()
-  JWT_SECRET?: string
-
-  @IsString()
-  @IsOptional()
-  JWT_EXPIRATION?: string
-
-  @IsString()
-  @IsOptional()
-  JWT_REFRESH_EXPIRATION?: string
-
   // Logging
   @IsString()
   @IsOptional()
