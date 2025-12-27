@@ -69,6 +69,14 @@ class EnvironmentVariables {
   @IsOptional()
   DATABASE_NAME?: string
 
+  @IsBoolean()
+  @IsOptional()
+  DATABASE_SYNCHRONIZE?: boolean
+
+  @IsBoolean()
+  @IsOptional()
+  DATABASE_LOGGING?: boolean
+
   // Redis (for caching)
   @IsString()
   @IsOptional()

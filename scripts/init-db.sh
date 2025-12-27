@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 # Check if .env file exists
 if [ ! -f .env ]; then
   echo -e "${RED}Error: .env file not found${NC}"
-  echo "Please copy .env.sample to .env and configure it"
+  echo "Please copy .env.example to .env and configure it"
   exit 1
 fi
 
@@ -28,7 +28,7 @@ DB_USER=${DATABASE_USER:-postgres}
 DB_PASSWORD=${DATABASE_PASSWORD:-postgres}
 DB_NAME=${DATABASE_NAME:-nest_monolith}
 DB_HOST=${DATABASE_HOST:-localhost}
-DB_PORT=${DATABASE_PORT:-5433}
+DB_PORT=${DATABASE_PORT:-5432}
 APP_USER=${APP_DATABASE_USER:-app_user}
 APP_PASSWORD=${APP_DATABASE_PASSWORD:-app_password}
 
