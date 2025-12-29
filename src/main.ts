@@ -68,7 +68,7 @@ async function bootstrap(): Promise<void> {
   app.useGlobalFilters(new GlobalExceptionFilter())
   app.useGlobalInterceptors(
     new RequestIdInterceptor(), // First: Generate request ID
-    new TransformInterceptor(), // Second: Transform responses
+    new TransformInterceptor(configService), // Second: Transform responses
     app.get(MetricsInterceptor) // Third: Record metrics
   )
 

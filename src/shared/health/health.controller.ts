@@ -70,6 +70,26 @@ export class HealthController {
   @Get()
   @HealthCheck()
   check() {
-    return this.checkReadiness()
+    return this.health.check([
+      // Check database connectivity
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async () => this.prismaHealth.pingCheck('database', this.prisma as any),
+
+      // Check Redis connectivity (soft failure for /health)
+      async () => {
+        try {
+          return await this.redisHealth.isHealthy('redis')
+        } catch (error) {
+          return {
+            redis: {
+              status: 'up',
+              degraded: true,
+              message:
+                error instanceof Error ? error.message : 'Redis check failed',
+            },
+          }
+        }
+      },
+    ])
   }
 }
