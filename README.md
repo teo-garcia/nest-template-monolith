@@ -143,6 +143,16 @@ pnpm test:cov
 
 ---
 
+## Architecture Notes
+
+### Service Model
+
+- Single deployable service
+- Direct module calls inside the app
+- Redis is used for caching, not messaging
+
+---
+
 ## Deployment
 
 ### Docker
@@ -158,9 +168,9 @@ docker-compose up -d
 docker-compose logs -f app
 ```
 
-### Environment Variables
+## Environment Variables
 
-Key configuration (see `.env.sample` for full list):
+Key configuration (see `.env.example` for full list):
 
 | Variable       | Description                  | Default     |
 | -------------- | ---------------------------- | ----------- |

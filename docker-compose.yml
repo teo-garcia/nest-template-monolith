@@ -55,7 +55,7 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD:-redis}
       PORT: 3000
     ports:
-      - "${APP_PORT:-3000}:3000"
+      - "${PORT:-3000}:3000"
     volumes:
       # Mount source for hot reload
       - ./src:/app/src
