@@ -1,5 +1,2 @@
-import shared from '@teo-garcia/prettier-config-shared'
-
-export default {
-  ...shared,
-}
+// eslint-disable-next-line unicorn/prefer-module
+module.exports = require('@teo-garcia/prettier-config-shared').default

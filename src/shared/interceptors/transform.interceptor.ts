@@ -25,9 +25,10 @@ export interface ApiResponse<T> {
 }
 
 @Injectable()
-export class TransformInterceptor<T>
-  implements NestInterceptor<T, ApiResponse<T>>
-{
+export class TransformInterceptor<T> implements NestInterceptor<
+  T,
+  ApiResponse<T>
+> {
   private readonly logger = new Logger(TransformInterceptor.name)
 
   constructor(private readonly configService: ConfigService) {}
