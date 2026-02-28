@@ -1,21 +1,32 @@
-import { execSync } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { resolve } from 'node:path'
+import path from 'node:path'
+
+import dotenv from 'dotenv'
 
 export default async function globalSetup() {
-  const envTestPath = resolve(__dirname, '..', '.env.test')
+  const rootDirectory = process.cwd()
+  const envTestPath = path.resolve(rootDirectory, '.env.test')
+  const prismaCli = path.resolve(
+    rootDirectory,
+    'node_modules',
+    'prisma',
+    'build',
+    'index.js'
+  )
 
   if (!existsSync(envTestPath)) {
     throw new Error(
-      'Missing .env.test file. Copy .env.test.example to .env.test and adjust if needed.',
+      'Missing .env.test file. Copy .env.test.example to .env.test and adjust if needed.'
     )
   }
 
   process.env.DOTENV_CONFIG_PATH = envTestPath
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  require('dotenv').config({ path: envTestPath })
+  dotenv.config({ path: envTestPath })
 
-  execSync('pnpm db:generate', { stdio: 'inherit' })
-  execSync('pnpm db:deploy', { stdio: 'inherit' })
+  execFileSync(process.execPath, [prismaCli, 'generate'], { stdio: 'inherit' })
+  execFileSync(process.execPath, [prismaCli, 'migrate', 'deploy'], {
+    stdio: 'inherit',
+  })
 }
