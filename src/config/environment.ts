@@ -14,6 +14,10 @@ export default registerAs('config', () => ({
     apiPrefix: process.env.API_PREFIX || 'api',
     name: process.env.APP_NAME || 'NestJS Monolith Template',
     version: process.env.API_VERSION || '1',
+    shutdownTimeout: Number.parseInt(
+      process.env.SHUTDOWN_TIMEOUT || '10000',
+      10
+    ),
   },
 
   // Database Configuration

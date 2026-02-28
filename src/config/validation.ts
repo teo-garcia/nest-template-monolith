@@ -44,6 +44,10 @@ class EnvironmentVariables {
   @IsOptional()
   API_VERSION?: string
 
+  @IsNumber()
+  @IsOptional()
+  SHUTDOWN_TIMEOUT?: number
+
   // Database (required for monolith)
   @IsString()
   @IsOptional()
