@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import {
   HealthCheck,
   HealthCheckService,
@@ -8,12 +9,7 @@ import {
 import { PrismaService } from '../prisma'
 import { RedisHealthIndicator } from './redis.health'
 
-/**
- * Health Check Controller
- *
- * Provides health check endpoints for deployment orchestration (K8s, Docker, cloud platforms).
- * These endpoints help determine if the service is alive and ready to accept traffic.
- */
+@ApiTags('Health')
 @Controller('health')
 export class HealthController {
   constructor(

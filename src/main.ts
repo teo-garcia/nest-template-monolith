@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import { AppModule } from './app.module'
 import { GlobalExceptionFilter } from './shared/filters'
@@ -72,12 +73,16 @@ async function bootstrap(): Promise<void> {
     app.get(MetricsInterceptor) // Third: Record metrics
   )
 
-  // Enable graceful shutdown hooks
-  // This ensures that the application cleans up resources properly on shutdown
-  // Prisma will automatically handle cleanup via onModuleDestroy
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle(appName)
+    .setVersion(appVersion)
+    .addServer(`http://localhost:${port}`)
+    .build()
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig)
+  SwaggerModule.setup('docs', app, swaggerDocument)
+
   app.enableShutdownHooks()
 
-  // Start the application
   await app.listen(port)
 
   const baseUrl = `http://localhost:${port}`
@@ -85,6 +90,7 @@ async function bootstrap(): Promise<void> {
   logger.log(`${appName} v${appVersion} is running on: ${fullUrl}`)
   logger.log(`Metrics available at: ${baseUrl}/metrics`)
   logger.log(`Health check available at: ${baseUrl}/health`)
+  logger.log(`API docs available at: ${baseUrl}/docs`)
 }
 
 // Handle graceful shutdown signals

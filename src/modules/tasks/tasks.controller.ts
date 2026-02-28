@@ -8,24 +8,13 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 
 import { TaskStatus } from '../../generated/prisma/client'
 import { CreateTaskDto, UpdateTaskDto } from './dto'
 import { TasksService } from './tasks.service'
 
-/**
- * Tasks Controller
- *
- * Handles HTTP requests for task operations.
- * Demonstrates RESTful API design with proper HTTP methods.
- *
- * Endpoints:
- * - POST   /tasks      - Create a new task
- * - GET    /tasks      - Get all tasks (with optional filters)
- * - GET    /tasks/:id  - Get a specific task
- * - PATCH  /tasks/:id  - Update a task
- * - DELETE /tasks/:id  - Delete a task
- */
+@ApiTags('Tasks')
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
