@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import helmet from 'helmet'
 
 import { AppModule } from './app.module'
 import { GlobalExceptionFilter } from './shared/filters'
@@ -43,6 +44,8 @@ async function bootstrap(): Promise<void> {
   const logger = app.get(AppLogger)
   logger.setContext('Bootstrap')
   app.useLogger(logger)
+
+  app.use(helmet())
 
   // Set global API prefix
   // All routes will be prefixed with this (e.g., /api/users)
