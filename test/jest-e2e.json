@@ -1,6 +1,8 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
+  "globalSetup": "./global-setup.ts",
+  "setupFiles": ["dotenv/config"],
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
