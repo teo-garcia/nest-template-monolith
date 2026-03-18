@@ -2,9 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
     branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   ci:
@@ -48,10 +52,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Security audit
-        run: pnpm audit --audit-level=high
-        continue-on-error: true
-
       - name: Create test environment file
         run: cp .env.test.example .env.test
 
@@ -70,8 +70,8 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Run unit tests
-        run: pnpm test
+      - name: Coverage
+        run: pnpm coverage
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nest_monolith_test?schema=public
           REDIS_HOST: localhost
@@ -81,9 +81,9 @@ jobs:
         run: pnpm test:e2e
 
       - name: Upload coverage reports
-        uses: codecov/codecov-action@v5
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          files: ./coverage/lcov.info
-          flags: unittests
-          fail_ci_if_error: false
+          name: coverage-report
+          path: coverage/
+          retention-days: 7

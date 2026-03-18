@@ -91,6 +91,7 @@
   "private": true,
   "scripts": {
     "build": "nest build",
+    "check": "pnpm lint:es:check && pnpm lint:ts && pnpm format:check && pnpm test",
     "commitlint": "commitlint --edit",
     "db:deploy": "prisma migrate deploy",
     "db:generate": "prisma generate",
@@ -110,6 +111,7 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "test": "jest",
+    "coverage": "jest --coverage",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "DOTENV_CONFIG_PATH=.env.test jest --config ./test/jest-e2e.json --forceExit",
