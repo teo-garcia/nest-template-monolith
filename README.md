@@ -65,7 +65,7 @@ pnpm db:generate
 pnpm db:migrate
 
 # 6. Start development server
-pnpm start:dev
+pnpm dev
 ```
 
 Open [http://localhost:3000/api](http://localhost:3000/api) - you should see
@@ -83,7 +83,7 @@ metrics
 
 | Command            | Description                    |
 | ------------------ | ------------------------------ |
-| `pnpm start:dev`   | Start with hot reload          |
+| `pnpm dev`         | Start with hot reload          |
 | `pnpm build`       | Create production build        |
 | `pnpm start:prod`  | Run production server          |
 | `pnpm test`        | Run unit tests                 |
