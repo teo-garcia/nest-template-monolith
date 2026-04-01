@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common'
 import { RequestMethod } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import request from 'supertest'
 import { App } from 'supertest/types'
 
@@ -71,6 +72,16 @@ describe('AppController (e2e)', () => {
     // Apply global validation pipe (same as main.ts)
     app.useGlobalPipes(new GlobalValidationPipe())
 
+    const appName =
+      configService.get<string>('config.app.name') ?? 'NestJS Monolith Template'
+    const appVersion = configService.get<string>('config.app.version') ?? '1'
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle(appName)
+      .setVersion(appVersion)
+      .build()
+    const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig)
+    SwaggerModule.setup('docs', app, swaggerDocument)
+
     await app.init()
   })
 
@@ -126,6 +137,7 @@ describe('AppController (e2e)', () => {
     it('/docs (GET) should expose Swagger UI', () => {
       return request(app.getHttpServer())
         .get('/docs')
+        .redirects(1)
         .expect(200)
         .expect('Content-Type', /text\/html/)
         .expect((response) => {
