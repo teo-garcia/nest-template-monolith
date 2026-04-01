@@ -45,9 +45,18 @@ ecosystem
 
 ## Quick Start
 
-Clone the template, install dependencies, copy `.env.example` to `.env`, start
-infrastructure with Docker Compose, run database migrations, and start the dev
-server on port 3000.
+```bash
+pnpm install
+cp .env.example .env
+cp .env.test.example .env.test
+docker compose up -d db redis
+pnpm db:generate
+pnpm db:migrate
+pnpm dev
+```
+
+The app starts on `http://localhost:3000` and the API docs are available at
+`/docs`.
 
 ---
 
@@ -98,6 +107,20 @@ See `.env.example` for the full list.
 
 ---
 
+## Project Structure
+
+| Path                  | Purpose                                              |
+| --------------------- | ---------------------------------------------------- |
+| `src/modules/tasks/`  | Sample tasks domain with controllers and services    |
+| `src/shared/health/`  | Health checks and readiness probes                   |
+| `src/shared/metrics/` | Prometheus instrumentation                           |
+| `src/config/`         | Environment, Swagger, logger, and application config |
+| `prisma/`             | Prisma schema, migrations, and seed data             |
+| `test/`               | E2E coverage                                         |
+| `docker/`             | Development and production container files           |
+
+---
+
 ## Shared Configs
 
 | Package                              | Role                |
@@ -105,6 +128,18 @@ See `.env.example` for the full list.
 | `@teo-garcia/eslint-config-shared`   | ESLint rules        |
 | `@teo-garcia/prettier-config-shared` | Prettier formatting |
 | `@teo-garcia/tsconfig-shared`        | TypeScript settings |
+
+---
+
+## Shared Governance
+
+| Area               | Tooling                                             |
+| ------------------ | --------------------------------------------------- |
+| Dependency updates | Renovate                                            |
+| Issue intake       | GitHub issue templates                              |
+| Change review      | Pull request template                               |
+| CI                 | GitHub Actions for lint, typecheck, build, and test |
+| Security           | Trivy, dependency review, `pnpm audit`              |
 
 ---
 
