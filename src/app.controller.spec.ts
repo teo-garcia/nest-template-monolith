@@ -24,7 +24,11 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return app info message', () => {
-      expect(appController.getInfo()).toBe('Test App - API is running!')
+      expect(appController.getInfo()).toEqual({
+        name: 'Test App',
+        status: 'ok',
+        version: 'Test App',
+      })
     })
   })
 })
