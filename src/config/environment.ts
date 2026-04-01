@@ -1,5 +1,22 @@
 import { registerAs } from '@nestjs/config'
 
+const trimSlashes = (value: string): string => {
+  let start = 0
+  let end = value.length
+
+  while (start < end && value[start] === '/') {
+    start += 1
+  }
+
+  while (end > start && value[end - 1] === '/') {
+    end -= 1
+  }
+
+  return value.slice(start, end)
+}
+
+const normalizeApiPrefix = (value = '/api'): string => trimSlashes(value)
+
 /**
  * Environment Configuration
  *
@@ -11,7 +28,7 @@ export default registerAs('config', () => ({
   app: {
     env: process.env.NODE_ENV || 'development',
     port: Number.parseInt(process.env.PORT || '3000', 10),
-    apiPrefix: process.env.API_PREFIX || 'api',
+    apiPrefix: normalizeApiPrefix(process.env.API_PREFIX),
     name: process.env.APP_NAME || 'NestJS Monolith Template',
     version: process.env.API_VERSION || '1',
     shutdownTimeout: Number.parseInt(

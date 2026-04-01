@@ -1,22 +1,16 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller, Get, Res } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import {
-  HealthCheck,
-  HealthCheckService,
-  PrismaHealthIndicator,
-} from '@nestjs/terminus'
+import { Response } from 'express'
 
 import { PrismaService } from '../prisma'
-import { RedisHealthIndicator } from './redis.health'
+import { RedisService } from '../redis'
 
 @ApiTags('Health')
 @Controller('health')
 export class HealthController {
   constructor(
-    private health: HealthCheckService,
-    private prismaHealth: PrismaHealthIndicator,
     private prisma: PrismaService,
-    private redisHealth: RedisHealthIndicator
+    private redis: RedisService
   ) {}
 
   /**
@@ -27,12 +21,8 @@ export class HealthController {
    * This is a lightweight check that should always succeed if the app is running.
    */
   @Get('live')
-  @HealthCheck()
   checkLiveness() {
-    return this.health.check([
-      // Simply returns OK if the app is running
-      async () => ({ status: { status: 'up' } }),
-    ])
+    return { status: 'ok' }
   }
 
   /**
@@ -43,18 +33,19 @@ export class HealthController {
    * Used by load balancers and orchestrators to route traffic only to ready instances.
    */
   @Get('ready')
-  @HealthCheck()
-  checkReadiness() {
-    return this.health.check([
-      // Check database connectivity
-      // Uses Prisma to execute a simple query: SELECT 1
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async () => this.prismaHealth.pingCheck('database', this.prisma as any),
+  async checkReadiness(@Res({ passthrough: true }) response: Response) {
+    const checks = {
+      database: (await this.prisma.healthCheck()) ? 'ok' : 'error',
+      redis: (await this.redis.isHealthy()) ? 'ok' : 'error',
+    }
+    const isHealthy = Object.values(checks).every((value) => value === 'ok')
 
-      // Check Redis connectivity
-      // Sends a PING command and expects PONG response
-      async () => this.redisHealth.isHealthy('redis'),
-    ])
+    response.status(isHealthy ? 200 : 503)
+
+    return {
+      status: isHealthy ? 'ok' : 'error',
+      checks,
+    }
   }
 
   /**
@@ -64,28 +55,18 @@ export class HealthController {
    * Provides detailed status information for monitoring and debugging.
    */
   @Get()
-  @HealthCheck()
-  check() {
-    return this.health.check([
-      // Check database connectivity
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async () => this.prismaHealth.pingCheck('database', this.prisma as any),
+  async check(@Res({ passthrough: true }) response: Response) {
+    const checks = {
+      database: (await this.prisma.healthCheck()) ? 'ok' : 'error',
+      redis: (await this.redis.isHealthy()) ? 'ok' : 'error',
+    }
+    const isHealthy = Object.values(checks).every((value) => value === 'ok')
 
-      // Check Redis connectivity (soft failure for /health)
-      async () => {
-        try {
-          return await this.redisHealth.isHealthy('redis')
-        } catch (error) {
-          return {
-            redis: {
-              status: 'up',
-              degraded: true,
-              message:
-                error instanceof Error ? error.message : 'Redis check failed',
-            },
-          }
-        }
-      },
-    ])
+    response.status(isHealthy ? 200 : 503)
+
+    return {
+      status: isHealthy ? 'ok' : 'degraded',
+      checks,
+    }
   }
 }

@@ -1,10 +1,10 @@
 import {
   ArgumentMetadata,
-  BadRequestException,
   Injectable,
   Logger,
   PipeTransform,
   Type,
+  UnprocessableEntityException,
 } from '@nestjs/common'
 import { ClassConstructor, plainToInstance } from 'class-transformer'
 import { validate, ValidationError, ValidatorOptions } from 'class-validator'
@@ -37,10 +37,10 @@ export class GlobalValidationPipe implements PipeTransform {
       const errorMessages = this.formatValidationErrors(errors)
       this.logger.warn(`Validation failed: ${JSON.stringify(errorMessages)}`)
 
-      throw new BadRequestException({
+      throw new UnprocessableEntityException({
         message: 'Validation failed',
         errors: errorMessages,
-        statusCode: 400,
+        statusCode: 422,
       })
     }
 

@@ -1,4 +1,5 @@
 import { INestApplication } from '@nestjs/common'
+import { RequestMethod } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
@@ -6,6 +7,26 @@ import { App } from 'supertest/types'
 
 import { AppModule } from '../src/app.module'
 import { GlobalValidationPipe } from '../src/shared/pipes'
+
+const trimSlashes = (value: string): string => {
+  let start = 0
+  let end = value.length
+
+  while (start < end && value[start] === '/') {
+    start += 1
+  }
+
+  while (end > start && value[end - 1] === '/') {
+    end -= 1
+  }
+
+  return value.slice(start, end)
+}
+
+const toPublicApiPrefix = (value: string | undefined): string => {
+  const normalized = trimSlashes(value || '/api')
+  return normalized ? `/${normalized}` : ''
+}
 
 /**
  * E2E Tests
@@ -18,6 +39,7 @@ import { GlobalValidationPipe } from '../src/shared/pipes'
  */
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>
+  let apiPrefix = '/api'
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -28,11 +50,21 @@ describe('AppController (e2e)', () => {
 
     // Apply same global configuration as main.ts
     const configService = app.get(ConfigService)
-    const apiPrefix = configService.get<string>('app.apiPrefix') ?? 'api'
+    apiPrefix = toPublicApiPrefix(
+      configService.get<string>('config.app.apiPrefix')
+    )
 
     if (apiPrefix) {
-      app.setGlobalPrefix(apiPrefix, {
-        exclude: ['health', 'health/live', 'health/ready', 'metrics'],
+      app.setGlobalPrefix(apiPrefix.slice(1), {
+        exclude: [
+          '',
+          { path: '', method: RequestMethod.GET },
+          'health',
+          'health/live',
+          'health/ready',
+          'metrics',
+          'docs',
+        ],
       })
     }
 
@@ -49,10 +81,11 @@ describe('AppController (e2e)', () => {
   describe('Service Info', () => {
     it('/ (GET) should return service info', () => {
       return request(app.getHttpServer())
-        .get('/api')
+        .get('/')
         .expect(200)
         .expect((res) => {
-          expect(res.text).toContain('NestJS Monolith Template')
+          expect(res.body).toHaveProperty('name', 'NestJS Monolith Template')
+          expect(res.body).toHaveProperty('status', 'ok')
         })
     })
   })
@@ -71,7 +104,9 @@ describe('AppController (e2e)', () => {
       return request(app.getHttpServer())
         .get('/health/ready')
         .expect((res) => {
-          expect([200, 500, 503]).toContain(res.status)
+          expect([200, 503]).toContain(res.status)
+          expect(res.body).toHaveProperty('checks.database')
+          expect(res.body).toHaveProperty('checks.redis')
         })
     })
 
@@ -81,6 +116,20 @@ describe('AppController (e2e)', () => {
         .expect((res) => {
           expect([200, 503]).toContain(res.status)
           expect(res.body).toHaveProperty('status')
+          expect(res.body).toHaveProperty('checks.database')
+          expect(res.body).toHaveProperty('checks.redis')
+        })
+    })
+  })
+
+  describe('Docs', () => {
+    it('/docs (GET) should expose Swagger UI', () => {
+      return request(app.getHttpServer())
+        .get('/docs')
+        .expect(200)
+        .expect('Content-Type', /text\/html/)
+        .expect((response) => {
+          expect(response.text).toContain('Swagger UI')
         })
     })
   })
@@ -103,7 +152,7 @@ describe('AppController (e2e)', () => {
 
     it('/api/tasks (GET) should return array (may be empty initially)', async () => {
       const response = await request(app.getHttpServer())
-        .get('/api/tasks')
+        .get(`${apiPrefix}/tasks`)
         .expect(200)
 
       expect(Array.isArray(response.body)).toBe(true)
@@ -117,7 +166,7 @@ describe('AppController (e2e)', () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post('/api/tasks')
+        .post(`${apiPrefix}/tasks`)
         .send(createTaskDto)
         .expect(201)
 
@@ -135,11 +184,11 @@ describe('AppController (e2e)', () => {
 
     it('/api/tasks (POST) should validate input - missing title', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/tasks')
+        .post(`${apiPrefix}/tasks`)
         .send({
           description: 'Task without title',
         })
-        .expect(400)
+        .expect(422)
 
       expect(response.body).toHaveProperty('message')
       expect(response.body).toHaveProperty('errors')
@@ -147,12 +196,12 @@ describe('AppController (e2e)', () => {
 
     it('/api/tasks (POST) should validate input - invalid priority', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/tasks')
+        .post(`${apiPrefix}/tasks`)
         .send({
           title: 'Test Task',
           priority: 15, // Max is 10
         })
-        .expect(400)
+        .expect(422)
 
       expect(response.body).toHaveProperty('message')
       expect(response.body).toHaveProperty('errors')
@@ -160,12 +209,12 @@ describe('AppController (e2e)', () => {
 
     it('/api/tasks (POST) should validate input - invalid status', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/tasks')
+        .post(`${apiPrefix}/tasks`)
         .send({
           title: 'Test Task',
           status: 'INVALID_STATUS',
         })
-        .expect(400)
+        .expect(422)
 
       expect(response.body).toHaveProperty('message')
       expect(response.body).toHaveProperty('errors')
@@ -173,7 +222,7 @@ describe('AppController (e2e)', () => {
 
     it('/api/tasks/:id (GET) should return a task', async () => {
       const response = await request(app.getHttpServer())
-        .get(`/api/tasks/${createdTaskId}`)
+        .get(`${apiPrefix}/tasks/${createdTaskId}`)
         .expect(200)
 
       expect(response.body).toHaveProperty('id', createdTaskId)
@@ -182,7 +231,7 @@ describe('AppController (e2e)', () => {
 
     it('/api/tasks/:id (GET) should return 404 for non-existent task', async () => {
       const response = await request(app.getHttpServer())
-        .get('/api/tasks/non_existent_id')
+        .get(`${apiPrefix}/tasks/non_existent_id`)
         .expect(404)
 
       expect(response.body).toHaveProperty('message')
@@ -196,7 +245,7 @@ describe('AppController (e2e)', () => {
       }
 
       const response = await request(app.getHttpServer())
-        .patch(`/api/tasks/${createdTaskId}`)
+        .patch(`${apiPrefix}/tasks/${createdTaskId}`)
         .send(updateTaskDto)
         .expect(200)
 
@@ -207,7 +256,7 @@ describe('AppController (e2e)', () => {
 
     it('/api/tasks/:id (PATCH) should return 404 for non-existent task', async () => {
       const response = await request(app.getHttpServer())
-        .patch('/api/tasks/non_existent_id')
+        .patch(`${apiPrefix}/tasks/non_existent_id`)
         .send({ title: 'New Title' })
         .expect(404)
 
@@ -216,7 +265,7 @@ describe('AppController (e2e)', () => {
 
     it('/api/tasks?status=IN_PROGRESS (GET) should filter by status', async () => {
       const response = await request(app.getHttpServer())
-        .get('/api/tasks?status=IN_PROGRESS')
+        .get(`${apiPrefix}/tasks?status=IN_PROGRESS`)
         .expect(200)
 
       expect(Array.isArray(response.body)).toBe(true)
@@ -227,7 +276,7 @@ describe('AppController (e2e)', () => {
 
     it('/api/tasks?priority=5 (GET) should filter by priority', async () => {
       const response = await request(app.getHttpServer())
-        .get('/api/tasks?priority=5')
+        .get(`${apiPrefix}/tasks?priority=5`)
         .expect(200)
 
       expect(Array.isArray(response.body)).toBe(true)
@@ -237,16 +286,17 @@ describe('AppController (e2e)', () => {
     })
 
     it('/api/tasks/:id (DELETE) should delete a task', async () => {
-      const response = await request(app.getHttpServer())
-        .delete(`/api/tasks/${createdTaskId}`)
-        .expect(200)
-
-      expect(response.body).toHaveProperty('id', createdTaskId)
+      await request(app.getHttpServer())
+        .delete(`${apiPrefix}/tasks/${createdTaskId}`)
+        .expect(204)
+        .expect((response) => {
+          expect(response.text).toBe('')
+        })
     })
 
     it('/api/tasks/:id (GET) should return 404 after deletion', async () => {
       const response = await request(app.getHttpServer())
-        .get(`/api/tasks/${createdTaskId}`)
+        .get(`${apiPrefix}/tasks/${createdTaskId}`)
         .expect(404)
 
       expect(response.body).toHaveProperty('statusCode', 404)
@@ -254,7 +304,7 @@ describe('AppController (e2e)', () => {
 
     it('/api/tasks/:id (DELETE) should return 404 for non-existent task', async () => {
       const response = await request(app.getHttpServer())
-        .delete('/api/tasks/non_existent_id')
+        .delete(`${apiPrefix}/tasks/non_existent_id`)
         .expect(404)
 
       expect(response.body).toHaveProperty('statusCode', 404)

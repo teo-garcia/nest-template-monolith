@@ -6,8 +6,8 @@
 and metrics**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Node](https://img.shields.io/badge/Node-22+-339933?logo=node.js&logoColor=white)](https://nodejs.org)
-[![pnpm](https://img.shields.io/badge/pnpm-9+-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
+[![Node](https://img.shields.io/badge/Node-24+-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+[![pnpm](https://img.shields.io/badge/pnpm-10+-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com)
 [![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma&logoColor=white)](https://prisma.io)
 
@@ -28,58 +28,30 @@ ecosystem
 | **Observability** | Health checks, Prometheus metrics, structured logging |
 | **Type Safety**   | TypeScript with strict mode                           |
 | **Testing**       | Jest for unit and E2E tests                           |
-| **Code Quality**  | ESLint, Prettier, Husky, Commitlint                   |
+| **Code Quality**  | ESLint, Prettier, Husky, commitlint                   |
 | **DevOps**        | Docker, GitHub Actions CI/CD                          |
 
 ---
 
 ## Requirements
 
-- Node.js 22+
-- pnpm 9+
-- Docker & Docker Compose
-- Redis (for caching)
-- PostgreSQL (for persistence)
+- Node.js 24+
+- pnpm 10+
+- Docker and Docker Compose
+- PostgreSQL
+- Redis
 
 ---
 
 ## Quick Start
 
-```bash
-# 1. Clone the template
-npx degit teo-garcia/nest-template-monolith my-api
-cd my-api
-
-# 2. Install dependencies
-pnpm install
-
-# 3. Setup environment
-cp .env.example .env
-# Edit .env if needed (defaults work for local development)
-
-# 4. Start infrastructure (Redis + PostgreSQL)
-docker-compose up -d
-
-# 5. Setup database
-pnpm db:generate
-pnpm db:migrate
-
-# 6. Start development server
-pnpm dev
-```
-
-Open [http://localhost:3000/api](http://localhost:3000/api) - you should see
-service info
-
-Open [http://localhost:3000/health](http://localhost:3000/health) - health check
-status
-
-Open [http://localhost:3000/metrics](http://localhost:3000/metrics) - Prometheus
-metrics
+Clone the template, install dependencies, copy `.env.example` to `.env`, start
+infrastructure with Docker Compose, run database migrations, and start the dev
+server on port 3000.
 
 ---
 
-## Available Scripts
+## Scripts
 
 | Command            | Description                    |
 | ------------------ | ------------------------------ |
@@ -99,78 +71,20 @@ metrics
 
 ---
 
-## Testing
+## Health and Observability
 
-```bash
-# Run unit tests
-pnpm test
+| Endpoint            | Description                                          |
+| ------------------- | ---------------------------------------------------- |
+| `GET /health/live`  | Liveness probe                                       |
+| `GET /health/ready` | Readiness probe (checks Redis + DB)                  |
+| `GET /health`       | Full health summary with memory metrics              |
+| `GET /metrics`      | Prometheus metrics (request count, duration, memory) |
 
-# Run E2E tests
-pnpm test:e2e
-
-# Run with coverage
-pnpm test:cov
-```
-
-**Test Coverage:**
-
-- **Unit tests**: Business logic with mocked dependencies
-- **E2E tests**: Full API flow with real database and Redis
+Structured JSON logs via Winston with daily rotation and request ID tracking.
 
 ---
-
-## Health & Observability
-
-### Health Checks
-
-- `GET /health/live` - Liveness probe (returns 200 if app is running)
-- `GET /health/ready` - Readiness probe (checks Redis + Database connectivity)
-- `GET /health` - Comprehensive health status with memory metrics
-
-### Metrics
-
-- `GET /metrics` - Prometheus metrics endpoint
-  - HTTP request count by route/method/status
-  - HTTP request duration histograms
-  - Memory usage metrics
-
-### Logging
-
-- Structured JSON logs via Winston
-- Daily log rotation
-- Request ID tracking for distributed tracing
-- Log levels: `debug`, `info`, `warn`, `error`
-
----
-
-## Architecture Notes
-
-### Service Model
-
-- Single deployable service
-- Direct module calls inside the app
-- Redis is used for caching, not messaging
-
----
-
-## Deployment
-
-### Docker
-
-```bash
-# Build production image
-docker build -f docker/Dockerfile -t my-api:latest .
-
-# Run with docker-compose
-docker-compose up -d
-
-# Check logs
-docker-compose logs -f app
-```
 
 ## Environment Variables
-
-Key configuration (see `.env.example` for full list):
 
 | Variable       | Description                  | Default     |
 | -------------- | ---------------------------- | ----------- |
@@ -178,44 +92,36 @@ Key configuration (see `.env.example` for full list):
 | `DATABASE_URL` | PostgreSQL connection string | Required    |
 | `REDIS_HOST`   | Redis server host            | `localhost` |
 | `REDIS_PORT`   | Redis server port            | `6379`      |
-| `REDIS_TTL`    | Cache TTL in seconds         | `3600`      |
 | `LOG_LEVEL`    | Logging verbosity            | `debug`     |
+
+See `.env.example` for the full list.
 
 ---
 
-## Shared Configuration Packages
+## Shared Configs
 
-This template uses shared configs from the @teo-garcia ecosystem:
-
-- [@teo-garcia/eslint-config-shared](https://github.com/teo-garcia/eslint-config-shared) -
-  ESLint rules
-- [@teo-garcia/prettier-config-shared](https://github.com/teo-garcia/prettier-config-shared) -
-  Prettier formatting
-- [@teo-garcia/tsconfig-shared](https://github.com/teo-garcia/tsconfig-shared) -
-  TypeScript configuration
+| Package                              | Role                |
+| ------------------------------------ | ------------------- |
+| `@teo-garcia/eslint-config-shared`   | ESLint rules        |
+| `@teo-garcia/prettier-config-shared` | Prettier formatting |
+| `@teo-garcia/tsconfig-shared`        | TypeScript settings |
 
 ---
 
 ## Related Templates
 
-- [nest-template-microservice](https://github.com/teo-garcia/nest-template-microservice) -
-  Event-driven NestJS microservice
-- [react-template-next](https://github.com/teo-garcia/react-template-next) -
-  Next.js frontend
-- [react-template-rr](https://github.com/teo-garcia/react-template-rr) - React
-  Router SPA
-
----
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md)
+| Template                     | Description                 |
+| ---------------------------- | --------------------------- |
+| `nest-template-microservice` | NestJS event-driven service |
+| `react-template-next`        | Next.js frontend            |
+| `react-template-rr`          | React Router SPA            |
+| `fastapi-template-monolith`  | FastAPI equivalent          |
 
 ---
 
 ## License
 
-MIT - see [LICENSE](LICENSE)
+MIT
 
 ---
 
