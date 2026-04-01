@@ -1,8 +1,8 @@
 import { INestApplication } from '@nestjs/common'
 import { RequestMethod } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Test, TestingModule } from '@nestjs/testing'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { App } from 'supertest/types'
 
