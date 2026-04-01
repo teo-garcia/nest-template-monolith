@@ -1,3 +1,4 @@
+import { RequestMethod } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
@@ -52,7 +53,15 @@ async function bootstrap(): Promise<void> {
   // Health and metrics endpoints are excluded
   if (apiPrefix) {
     app.setGlobalPrefix(apiPrefix, {
-      exclude: ['health', 'health/live', 'health/ready', 'metrics'],
+      exclude: [
+        '',
+        { path: '', method: RequestMethod.GET },
+        'health',
+        'health/live',
+        'health/ready',
+        'metrics',
+        'docs',
+      ],
     })
   }
 

@@ -122,20 +122,19 @@ export class TasksService {
    * Delete a task
    *
    * @param id - Task ID
-   * @returns The deleted task
+   * @returns Nothing
    * @throws NotFoundException if task not found
    */
-  async remove(id: string): Promise<Task> {
+  async remove(id: string): Promise<void> {
     this.logger.log(`Deleting task with ID: ${id}`)
 
     // First check if task exists
     await this.findOne(id)
 
-    const task = await this.prisma.task.delete({
+    await this.prisma.task.delete({
       where: { id },
     })
 
     this.logger.log(`Deleted task with ID: ${id}`)
-    return task
   }
 }

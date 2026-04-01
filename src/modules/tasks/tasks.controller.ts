@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -106,7 +107,8 @@ export class TasksController {
    * DELETE /api/tasks/clx1234567890
    */
   @Delete(':id')
+  @HttpCode(204)
   async remove(@Param('id') id: string) {
-    return this.tasksService.remove(id)
+    await this.tasksService.remove(id)
   }
 }

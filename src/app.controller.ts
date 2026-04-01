@@ -17,10 +17,17 @@ export class AppController {
    * Returns a simple message indicating the API is running.
    */
   @Get()
-  getInfo(): string {
+  getInfo() {
     const appName =
       this.configService.get<string>('config.app.name') ||
       'NestJS Monolith Template'
-    return `${appName} - API is running!`
+    const appVersion =
+      this.configService.get<string>('config.app.version') || '1'
+
+    return {
+      name: appName,
+      status: 'ok',
+      version: appVersion,
+    }
   }
 }
