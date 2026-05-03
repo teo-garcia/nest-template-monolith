@@ -1,6 +1,6 @@
 import { Controller, Get, Res } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Response } from 'express'
+import type { Response } from 'express'
 
 import { PrismaService } from '../prisma'
 import { RedisService } from '../redis'
