@@ -119,7 +119,7 @@
     "coverage": "jest --coverage",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "DOTENV_CONFIG_PATH=.env.test jest --config ./test/jest-e2e.json --forceExit",
+    "test:e2e": "NODE_OPTIONS=--experimental-vm-modules DOTENV_CONFIG_PATH=.env.test jest --config ./test/jest-e2e.json --forceExit",
     "test:watch": "jest --watch"
   },
   "version": "0.0.0"
