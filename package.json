@@ -61,7 +61,7 @@
     "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.0",
     "typescript-eslint": "^8.46.0"
   },
   "packageManager": "pnpm@10.33.2",
@@ -75,15 +75,20 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
+    "rootDir": ".",
+    "testRegex": "src/.*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.(t|j)s$": [
+        "ts-jest",
+        {
+          "tsconfig": "<rootDir>/tsconfig.spec.json"
+        }
+      ]
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "src/**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
+    "coverageDirectory": "./coverage",
     "testEnvironment": "node"
   },
   "license": "MIT",
@@ -114,7 +119,7 @@
     "coverage": "jest --coverage",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "DOTENV_CONFIG_PATH=.env.test jest --config ./test/jest-e2e.json --forceExit",
+    "test:e2e": "NODE_OPTIONS=--experimental-vm-modules DOTENV_CONFIG_PATH=.env.test jest --config ./test/jest-e2e.json --forceExit",
     "test:watch": "jest --watch"
   },
   "version": "0.0.0"
