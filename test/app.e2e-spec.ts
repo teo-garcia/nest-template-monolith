@@ -7,6 +7,8 @@ import request from 'supertest'
 import { App } from 'supertest/types'
 
 import { AppModule } from '../src/app.module'
+import { GlobalExceptionFilter } from '../src/shared/filters'
+import { RequestIdInterceptor } from '../src/shared/interceptors'
 import { GlobalValidationPipe } from '../src/shared/pipes'
 
 const trimSlashes = (value: string): string => {
@@ -69,8 +71,10 @@ describe('AppController (e2e)', () => {
       })
     }
 
-    // Apply global validation pipe (same as main.ts)
+    // Apply global request/error boundary setup (same as main.ts)
     app.useGlobalPipes(new GlobalValidationPipe())
+    app.useGlobalFilters(new GlobalExceptionFilter())
+    app.useGlobalInterceptors(new RequestIdInterceptor())
 
     const appName =
       configService.get<string>('config.app.name') ?? 'NestJS Monolith Template'
@@ -204,6 +208,13 @@ describe('AppController (e2e)', () => {
 
       expect(response.body).toHaveProperty('message')
       expect(response.body).toHaveProperty('errors')
+      expect(response.body).toMatchObject({
+        success: false,
+        statusCode: 422,
+        method: 'POST',
+      })
+      expect(response.body.path).toContain(`${apiPrefix}/tasks`)
+      expect(response.body.meta).toHaveProperty('requestId')
     })
 
     it('/api/tasks (POST) should validate input - invalid priority', async () => {
@@ -248,6 +259,12 @@ describe('AppController (e2e)', () => {
 
       expect(response.body).toHaveProperty('message')
       expect(response.body).toHaveProperty('statusCode', 404)
+      expect(response.body).toMatchObject({
+        success: false,
+        method: 'GET',
+      })
+      expect(response.body.path).toContain(`${apiPrefix}/tasks/non_existent_id`)
+      expect(response.body.meta).toHaveProperty('requestId')
     })
 
     it('/api/tasks/:id (PATCH) should update a task', async () => {

@@ -13,6 +13,7 @@ type PrismaClientKnownRequestError = Prisma.PrismaClientKnownRequestError
 import { Request, Response } from 'express'
 
 interface ErrorResponse {
+  success: false
   statusCode: number
   timestamp: string
   path: string
@@ -20,6 +21,9 @@ interface ErrorResponse {
   message: string | string[]
   error?: string
   errors?: Record<string, string[]>
+  meta?: {
+    requestId?: string
+  }
 }
 
 @Catch()
@@ -45,6 +49,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const timestamp = new Date().toISOString()
     const path = request.url
     const method = request.method
+    const requestId =
+      typeof (request as { id?: unknown }).id === 'string'
+        ? (request as { id?: string }).id
+        : undefined
+    const meta = requestId ? { requestId } : undefined
 
     // Handle HTTP exceptions (including validation errors)
     if (exception instanceof HttpException) {
@@ -58,6 +67,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         const responseObject = exceptionResponse as Record<string, unknown>
 
         return {
+          success: false,
           statusCode: status,
           timestamp,
           path,
@@ -65,10 +75,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           message: responseObject.message as string | string[],
           error: responseObject.error as string,
           errors: responseObject.errors as Record<string, string[]>,
+          meta,
         }
       }
 
       return {
+        success: false,
         statusCode: status,
         timestamp,
         path,
@@ -78,6 +90,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             ? exceptionResponse
             : 'An error occurred',
         error: exception.name,
+        meta,
       }
     }
 
@@ -92,18 +105,21 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         exception as PrismaClientKnownRequestError,
         timestamp,
         path,
-        method
+        method,
+        meta
       )
     }
 
     // Handle unknown errors
     return {
+      success: false,
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       timestamp,
       path,
       method,
       message: 'Internal server error',
       error: 'InternalServerError',
+      meta,
     }
   }
 
@@ -111,53 +127,62 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     exception: PrismaClientKnownRequestError,
     timestamp: string,
     path: string,
-    method: string
+    method: string,
+    meta?: ErrorResponse['meta']
   ): ErrorResponse {
     switch (exception.code) {
       case 'P2002': {
         // Unique constraint violation
         return {
+          success: false,
           statusCode: HttpStatus.CONFLICT,
           timestamp,
           path,
           method,
           message: 'A record with this value already exists',
           error: 'ConflictError',
+          meta,
         }
       }
 
       case 'P2025': {
         // Record not found
         return {
+          success: false,
           statusCode: HttpStatus.NOT_FOUND,
           timestamp,
           path,
           method,
           message: 'Record not found',
           error: 'NotFoundError',
+          meta,
         }
       }
 
       case 'P2003': {
         // Foreign key constraint violation
         return {
+          success: false,
           statusCode: HttpStatus.BAD_REQUEST,
           timestamp,
           path,
           method,
           message: 'Invalid reference to related record',
           error: 'BadRequestError',
+          meta,
         }
       }
 
       default: {
         return {
+          success: false,
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           timestamp,
           path,
           method,
           message: 'Database error occurred',
           error: 'DatabaseError',
+          meta,
         }
       }
     }
