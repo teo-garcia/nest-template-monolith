@@ -43,6 +43,15 @@ interface TaskResponse {
   status: string
 }
 
+interface PaginatedTaskResponse {
+  data: TaskResponse[]
+  meta: {
+    total: number
+    page: number
+    pageSize: number
+  }
+}
+
 const dataOf = <T>(body: { data: T }): T => body.data
 
 /**
@@ -190,6 +199,17 @@ describe('AppController (e2e)', () => {
           expect(response.text).toContain('Swagger UI')
         })
     })
+
+    it('/docs-json (GET) should expose shared contract schemas', () => {
+      return request(app.getHttpServer())
+        .get('/docs-json')
+        .expect(200)
+        .expect((response) => {
+          const schemas = response.body.components.schemas
+          expect(schemas).toHaveProperty('ErrorEnvelopeDto')
+          expect(schemas).toHaveProperty('PaginatedTasksResponseDto')
+        })
+    })
   })
 
   describe('Metrics', () => {
@@ -210,12 +230,18 @@ describe('AppController (e2e)', () => {
   describe('Tasks API', () => {
     let createdTaskId: string
 
-    it('/api/tasks (GET) should return array (may be empty initially)', async () => {
+    it('/api/tasks (GET) should return paginated tasks', async () => {
       const response = await request(app.getHttpServer())
         .get(`${apiPrefix}/tasks`)
         .expect(200)
 
-      expect(Array.isArray(dataOf<TaskResponse[]>(response.body))).toBe(true)
+      const data = dataOf<PaginatedTaskResponse>(response.body)
+      expect(Array.isArray(data.data)).toBe(true)
+      expect(data.meta).toMatchObject({
+        page: 1,
+        pageSize: 20,
+      })
+      expect(typeof data.meta.total).toBe('number')
     })
 
     it('/api/tasks (POST) should create a task', async () => {
@@ -344,10 +370,10 @@ describe('AppController (e2e)', () => {
         .get(`${apiPrefix}/tasks?status=IN_PROGRESS`)
         .expect(200)
 
-      const data = dataOf<TaskResponse[]>(response.body)
+      const data = dataOf<PaginatedTaskResponse>(response.body)
 
-      expect(Array.isArray(data)).toBe(true)
-      for (const task of data) {
+      expect(Array.isArray(data.data)).toBe(true)
+      for (const task of data.data) {
         expect(task.status).toBe('IN_PROGRESS')
       }
     })
@@ -357,10 +383,10 @@ describe('AppController (e2e)', () => {
         .get(`${apiPrefix}/tasks?priority=5`)
         .expect(200)
 
-      const data = dataOf<TaskResponse[]>(response.body)
+      const data = dataOf<PaginatedTaskResponse>(response.body)
 
-      expect(Array.isArray(data)).toBe(true)
-      for (const task of data) {
+      expect(Array.isArray(data.data)).toBe(true)
+      for (const task of data.data) {
         expect(task.priority).toBeGreaterThanOrEqual(5)
       }
     })

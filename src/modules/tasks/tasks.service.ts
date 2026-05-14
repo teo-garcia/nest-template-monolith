@@ -4,6 +4,24 @@ import { Task, TaskStatus } from '../../generated/prisma/client'
 import { PrismaService } from '../../shared/prisma'
 import { CreateTaskDto, UpdateTaskDto } from './dto'
 
+export interface TaskListOptions {
+  status?: TaskStatus
+  priority?: number
+  page: number
+  pageSize: number
+}
+
+export interface PaginationMeta {
+  total: number
+  page: number
+  pageSize: number
+}
+
+export interface PaginatedTasks {
+  data: Task[]
+  meta: PaginationMeta
+}
+
 /**
  * Tasks Service
  *
@@ -50,11 +68,12 @@ export class TasksService {
    *
    * @param status - Optional status filter
    * @param priority - Optional minimum priority filter
-   * @returns Array of tasks matching the criteria
+   * @returns Paginated tasks matching the criteria
    */
-  async findAll(status?: TaskStatus, priority?: number): Promise<Task[]> {
+  async findAll(options: TaskListOptions): Promise<PaginatedTasks> {
+    const { page, pageSize, priority, status } = options
     this.logger.debug(
-      `Finding tasks with status=${status}, priority=${priority}`
+      `Finding tasks with status=${status}, priority=${priority}, page=${page}, pageSize=${pageSize}`
     )
 
     // Build dynamic where clause based on provided filters
@@ -68,10 +87,24 @@ export class TasksService {
       where.priority = { gte: priority }
     }
 
-    return this.prisma.task.findMany({
-      where,
-      orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
-    })
+    const [total, data] = await this.prisma.$transaction([
+      this.prisma.task.count({ where }),
+      this.prisma.task.findMany({
+        where,
+        orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+    ])
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        pageSize,
+      },
+    }
   }
 
   /**
