@@ -31,8 +31,6 @@
     "@nestjs/cli": "^11.0.10",
     "@nestjs/schematics": "^11.0.8",
     "@nestjs/testing": "^11.1.6",
-    "@swc/cli": "^0.8.0",
-    "@swc/core": "^1.13.5",
     "@teo-garcia/eslint-config-shared": "^0.4.1",
     "@teo-garcia/prettier-config-shared": "^0.2.10",
     "@teo-garcia/tsconfig-shared": "^0.2.1",

@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common'
 
 import { RedisService } from './redis.service'
+import { RedisThrottlerStorage } from './redis-throttler.storage'
 
 /**
  * Redis Module
@@ -13,7 +14,7 @@ import { RedisService } from './redis.service'
  */
 @Global()
 @Module({
-  providers: [RedisService],
-  exports: [RedisService],
+  providers: [RedisService, RedisThrottlerStorage],
+  exports: [RedisService, RedisThrottlerStorage],
 })
 export class RedisModule {}

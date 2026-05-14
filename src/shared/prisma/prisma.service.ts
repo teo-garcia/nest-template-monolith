@@ -19,10 +19,16 @@ export class PrismaService
   private pool: Pool
 
   constructor(private configService: ConfigService) {
-    const databaseUrl = configService.get<string>('DATABASE_URL')
+    const databaseUrl = configService.get<string>('config.database.url')
+    const poolMax = configService.get<number>('config.database.poolMax', 10)
+
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL is required')
+    }
 
     const pool = new Pool({
       connectionString: databaseUrl,
+      max: poolMax,
     })
 
     const adapter = new PrismaPg(pool)
@@ -69,49 +75,6 @@ export class PrismaService
     } catch (error) {
       this.logger.error('Database health check failed', error)
       return false
-    }
-  }
-
-  /**
-   * Get database connection info for debugging
-   */
-  async getDatabaseInfo(): Promise<unknown> {
-    try {
-      const result = await this.$queryRaw`
-        SELECT
-          current_database() as database_name,
-          current_user as current_user,
-          version() as version,
-          now() as current_time
-      `
-      return result
-    } catch (error) {
-      this.logger.error('Failed to get database info', error)
-      throw error
-    }
-  }
-
-  /**
-   * Execute raw SQL with proper error handling
-   */
-  async executeRaw(sql: string, parameters: unknown[] = []): Promise<number> {
-    try {
-      return await this.$executeRawUnsafe(sql, ...parameters)
-    } catch (error) {
-      this.logger.error(`Raw SQL execution failed: ${sql}`, error)
-      throw error
-    }
-  }
-
-  /**
-   * Query raw SQL with proper error handling
-   */
-  async queryRaw(sql: string, parameters: unknown[] = []): Promise<unknown> {
-    try {
-      return await this.$queryRawUnsafe(sql, ...parameters)
-    } catch (error) {
-      this.logger.error(`Raw SQL query failed: ${sql}`, error)
-      throw error
     }
   }
 }

@@ -8,7 +8,11 @@ import { App } from 'supertest/types'
 
 import { AppModule } from '../src/app.module'
 import { GlobalExceptionFilter } from '../src/shared/filters'
-import { RequestIdInterceptor } from '../src/shared/interceptors'
+import {
+  RequestIdInterceptor,
+  TransformInterceptor,
+} from '../src/shared/interceptors'
+import { MetricsInterceptor } from '../src/shared/metrics'
 import { GlobalValidationPipe } from '../src/shared/pipes'
 
 const trimSlashes = (value: string): string => {
@@ -31,6 +35,16 @@ const toPublicApiPrefix = (value: string | undefined): string => {
   return normalized ? `/${normalized}` : ''
 }
 
+interface TaskResponse {
+  id: string
+  title: string
+  description?: string
+  priority: number
+  status: string
+}
+
+const dataOf = <T>(body: { data: T }): T => body.data
+
 /**
  * E2E Tests
  *
@@ -45,6 +59,9 @@ describe('AppController (e2e)', () => {
   let apiPrefix = '/api'
 
   beforeAll(async () => {
+    process.env.DOCS_ENABLED = 'true'
+    process.env.METRICS_ENABLED = 'true'
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile()
@@ -74,17 +91,31 @@ describe('AppController (e2e)', () => {
     // Apply global request/error boundary setup (same as main.ts)
     app.useGlobalPipes(new GlobalValidationPipe())
     app.useGlobalFilters(new GlobalExceptionFilter())
-    app.useGlobalInterceptors(new RequestIdInterceptor())
 
     const appName =
       configService.get<string>('config.app.name') ?? 'NestJS Monolith Template'
     const appVersion = configService.get<string>('config.app.version') ?? '1'
+    const docsEnabled =
+      configService.get<boolean>('config.docs.enabled') ?? true
+    const openApiServerUrl =
+      configService.get<string>('config.docs.serverUrl') ??
+      'http://localhost:3001'
+
     const swaggerConfig = new DocumentBuilder()
       .setTitle(appName)
       .setVersion(appVersion)
+      .addServer(openApiServerUrl)
       .build()
-    const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig)
-    SwaggerModule.setup('docs', app, swaggerDocument)
+    if (docsEnabled) {
+      const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig)
+      SwaggerModule.setup('docs', app, swaggerDocument)
+    }
+
+    app.useGlobalInterceptors(
+      new RequestIdInterceptor(),
+      new TransformInterceptor(configService),
+      app.get(MetricsInterceptor)
+    )
 
     await app.init()
   })
@@ -99,8 +130,10 @@ describe('AppController (e2e)', () => {
         .get('/')
         .expect(200)
         .expect((res) => {
-          expect(res.body).toHaveProperty('name', 'NestJS Monolith Template')
-          expect(res.body).toHaveProperty('status', 'ok')
+          const data = dataOf<{ name: string; status: string }>(res.body)
+
+          expect(data).toHaveProperty('name', 'NestJS Monolith Template')
+          expect(data).toHaveProperty('status', 'ok')
         })
     })
   })
@@ -112,6 +145,7 @@ describe('AppController (e2e)', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body).toHaveProperty('status', 'ok')
+          expect(res.headers).not.toHaveProperty('x-ratelimit-limit')
         })
     })
 
@@ -120,8 +154,12 @@ describe('AppController (e2e)', () => {
         .get('/health/ready')
         .expect((res) => {
           expect([200, 503]).toContain(res.status)
-          expect(res.body).toHaveProperty('checks.database')
-          expect(res.body).toHaveProperty('checks.redis')
+          const details = {
+            ...res.body.info,
+            ...res.body.error,
+          }
+          expect(details).toHaveProperty('database')
+          expect(details).toHaveProperty('redis')
         })
     })
 
@@ -131,8 +169,12 @@ describe('AppController (e2e)', () => {
         .expect((res) => {
           expect([200, 503]).toContain(res.status)
           expect(res.body).toHaveProperty('status')
-          expect(res.body).toHaveProperty('checks.database')
-          expect(res.body).toHaveProperty('checks.redis')
+          const details = {
+            ...res.body.info,
+            ...res.body.error,
+          }
+          expect(details).toHaveProperty('database')
+          expect(details).toHaveProperty('redis')
         })
     })
   })
@@ -159,6 +201,8 @@ describe('AppController (e2e)', () => {
         .expect((res) => {
           expect(res.text).toContain('http_requests_total')
           expect(res.text).toContain('http_request_duration_seconds')
+          expect(res.text).toContain('process_cpu_user_seconds_total')
+          expect(res.headers).not.toHaveProperty('x-ratelimit-limit')
         })
     })
   })
@@ -171,7 +215,7 @@ describe('AppController (e2e)', () => {
         .get(`${apiPrefix}/tasks`)
         .expect(200)
 
-      expect(Array.isArray(response.body)).toBe(true)
+      expect(Array.isArray(dataOf<TaskResponse[]>(response.body))).toBe(true)
     })
 
     it('/api/tasks (POST) should create a task', async () => {
@@ -186,16 +230,15 @@ describe('AppController (e2e)', () => {
         .send(createTaskDto)
         .expect(201)
 
-      expect(response.body).toHaveProperty('id')
-      expect(response.body).toHaveProperty('title', createTaskDto.title)
-      expect(response.body).toHaveProperty(
-        'description',
-        createTaskDto.description
-      )
-      expect(response.body).toHaveProperty('priority', createTaskDto.priority)
-      expect(response.body).toHaveProperty('status', 'PENDING')
+      const data = dataOf<TaskResponse>(response.body)
 
-      createdTaskId = response.body.id
+      expect(data).toHaveProperty('id')
+      expect(data).toHaveProperty('title', createTaskDto.title)
+      expect(data).toHaveProperty('description', createTaskDto.description)
+      expect(data).toHaveProperty('priority', createTaskDto.priority)
+      expect(data).toHaveProperty('status', 'PENDING')
+
+      createdTaskId = data.id
     })
 
     it('/api/tasks (POST) should validate input - missing title', async () => {
@@ -248,8 +291,10 @@ describe('AppController (e2e)', () => {
         .get(`${apiPrefix}/tasks/${createdTaskId}`)
         .expect(200)
 
-      expect(response.body).toHaveProperty('id', createdTaskId)
-      expect(response.body).toHaveProperty('title', 'Test Task')
+      const data = dataOf<TaskResponse>(response.body)
+
+      expect(data).toHaveProperty('id', createdTaskId)
+      expect(data).toHaveProperty('title', 'Test Task')
     })
 
     it('/api/tasks/:id (GET) should return 404 for non-existent task', async () => {
@@ -278,9 +323,11 @@ describe('AppController (e2e)', () => {
         .send(updateTaskDto)
         .expect(200)
 
-      expect(response.body).toHaveProperty('id', createdTaskId)
-      expect(response.body).toHaveProperty('title', updateTaskDto.title)
-      expect(response.body).toHaveProperty('status', updateTaskDto.status)
+      const data = dataOf<TaskResponse>(response.body)
+
+      expect(data).toHaveProperty('id', createdTaskId)
+      expect(data).toHaveProperty('title', updateTaskDto.title)
+      expect(data).toHaveProperty('status', updateTaskDto.status)
     })
 
     it('/api/tasks/:id (PATCH) should return 404 for non-existent task', async () => {
@@ -297,8 +344,10 @@ describe('AppController (e2e)', () => {
         .get(`${apiPrefix}/tasks?status=IN_PROGRESS`)
         .expect(200)
 
-      expect(Array.isArray(response.body)).toBe(true)
-      for (const task of response.body) {
+      const data = dataOf<TaskResponse[]>(response.body)
+
+      expect(Array.isArray(data)).toBe(true)
+      for (const task of data) {
         expect(task.status).toBe('IN_PROGRESS')
       }
     })
@@ -308,8 +357,10 @@ describe('AppController (e2e)', () => {
         .get(`${apiPrefix}/tasks?priority=5`)
         .expect(200)
 
-      expect(Array.isArray(response.body)).toBe(true)
-      for (const task of response.body) {
+      const data = dataOf<TaskResponse[]>(response.body)
+
+      expect(Array.isArray(data)).toBe(true)
+      for (const task of data) {
         expect(task.priority).toBeGreaterThanOrEqual(5)
       }
     })

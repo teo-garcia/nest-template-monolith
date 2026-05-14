@@ -1,9 +1,12 @@
-import { Controller, Get, Header } from '@nestjs/common'
+import { Controller, Get, NotFoundException, Res } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
+import { SkipThrottle } from '@nestjs/throttler'
+import type { Response } from 'express'
 
 import { MetricsService } from './metrics.service'
 
 @ApiTags('Metrics')
+@SkipThrottle()
 @Controller('metrics')
 export class MetricsController {
   constructor(private readonly metricsService: MetricsService) {}
@@ -25,8 +28,13 @@ export class MetricsController {
    * ...
    */
   @Get()
-  @Header('Content-Type', 'text/plain; version=0.0.4; charset=utf-8')
-  async getMetrics(): Promise<string> {
+  async getMetrics(@Res({ passthrough: true }) response: Response) {
+    if (!this.metricsService.isEnabled()) {
+      throw new NotFoundException('Metrics endpoint is disabled')
+    }
+
+    response.type(this.metricsService.getContentType())
+
     return await this.metricsService.getMetrics()
   }
 }

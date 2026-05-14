@@ -1,16 +1,19 @@
-import { Controller, Get, Res } from '@nestjs/common'
+import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import type { Response } from 'express'
+import { HealthCheck, HealthCheckService } from '@nestjs/terminus'
+import { SkipThrottle } from '@nestjs/throttler'
 
-import { PrismaService } from '../prisma'
-import { RedisService } from '../redis'
+import { PrismaHealthIndicator } from './prisma.health'
+import { RedisHealthIndicator } from './redis.health'
 
 @ApiTags('Health')
+@SkipThrottle()
 @Controller('health')
 export class HealthController {
   constructor(
-    private prisma: PrismaService,
-    private redis: RedisService
+    private readonly health: HealthCheckService,
+    private readonly prisma: PrismaHealthIndicator,
+    private readonly redis: RedisHealthIndicator
   ) {}
 
   /**
@@ -33,19 +36,9 @@ export class HealthController {
    * Used by load balancers and orchestrators to route traffic only to ready instances.
    */
   @Get('ready')
-  async checkReadiness(@Res({ passthrough: true }) response: Response) {
-    const checks = {
-      database: (await this.prisma.healthCheck()) ? 'ok' : 'error',
-      redis: (await this.redis.isHealthy()) ? 'ok' : 'error',
-    }
-    const isHealthy = Object.values(checks).every((value) => value === 'ok')
-
-    response.status(isHealthy ? 200 : 503)
-
-    return {
-      status: isHealthy ? 'ok' : 'error',
-      checks,
-    }
+  @HealthCheck()
+  async checkReadiness() {
+    return this.checkDependencies()
   }
 
   /**
@@ -55,18 +48,15 @@ export class HealthController {
    * Provides detailed status information for monitoring and debugging.
    */
   @Get()
-  async check(@Res({ passthrough: true }) response: Response) {
-    const checks = {
-      database: (await this.prisma.healthCheck()) ? 'ok' : 'error',
-      redis: (await this.redis.isHealthy()) ? 'ok' : 'error',
-    }
-    const isHealthy = Object.values(checks).every((value) => value === 'ok')
+  @HealthCheck()
+  async check() {
+    return this.checkDependencies()
+  }
 
-    response.status(isHealthy ? 200 : 503)
-
-    return {
-      status: isHealthy ? 'ok' : 'degraded',
-      checks,
-    }
+  private async checkDependencies() {
+    return this.health.check([
+      () => this.prisma.isHealthy('database'),
+      () => this.redis.isHealthy('redis'),
+    ])
   }
 }

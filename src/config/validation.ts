@@ -48,10 +48,17 @@ class EnvironmentVariables {
   @IsOptional()
   SHUTDOWN_TIMEOUT?: number
 
-  // Database (required for monolith)
+  @IsBoolean()
+  @IsOptional()
+  DOCS_ENABLED?: boolean
+
   @IsString()
   @IsOptional()
-  DATABASE_URL?: string
+  OPENAPI_SERVER_URL?: string
+
+  // Database (required for monolith)
+  @IsString()
+  DATABASE_URL!: string
 
   @IsString()
   @IsOptional()
@@ -72,6 +79,10 @@ class EnvironmentVariables {
   @IsString()
   @IsOptional()
   DATABASE_NAME?: string
+
+  @IsNumber()
+  @IsOptional()
+  DATABASE_POOL_MAX?: number
 
   @IsBoolean()
   @IsOptional()

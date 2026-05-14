@@ -40,6 +40,10 @@ async function bootstrap(): Promise<void> {
   const corsEnabled = configService.get<boolean>('config.cors.enabled') ?? false
   const corsOrigin =
     configService.get<string>('config.cors.origin') ?? 'http://localhost:3000'
+  const docsEnabled = configService.get<boolean>('config.docs.enabled') ?? true
+  const openApiServerUrl =
+    configService.get<string>('config.docs.serverUrl') ??
+    `http://localhost:${port}`
 
   // Setup logger
   const logger = app.get(AppLogger)
@@ -85,13 +89,15 @@ async function bootstrap(): Promise<void> {
     app.get(MetricsInterceptor) // Third: Record metrics
   )
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle(appName)
-    .setVersion(appVersion)
-    .addServer(`http://localhost:${port}`)
-    .build()
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig)
-  SwaggerModule.setup('docs', app, swaggerDocument)
+  if (docsEnabled) {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle(appName)
+      .setVersion(appVersion)
+      .addServer(openApiServerUrl)
+      .build()
+    const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig)
+    SwaggerModule.setup('docs', app, swaggerDocument)
+  }
 
   const shutdownTimeout =
     configService.get<number>('config.app.shutdownTimeout') ?? 10_000
@@ -105,7 +111,9 @@ async function bootstrap(): Promise<void> {
   logger.log(`${appName} v${appVersion} is running on: ${fullUrl}`)
   logger.log(`Metrics available at: ${baseUrl}/metrics`)
   logger.log(`Health check available at: ${baseUrl}/health`)
-  logger.log(`API docs available at: ${baseUrl}/docs`)
+  if (docsEnabled) {
+    logger.log(`API docs available at: ${baseUrl}/docs`)
+  }
 
   const forceExit = (signal: string) => {
     logger.log(`${signal} received, starting graceful shutdown...`)

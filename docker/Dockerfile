@@ -4,7 +4,7 @@
 FROM node:24-alpine AS builder
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@9 --activate
+RUN corepack enable && corepack prepare pnpm@10.33.2 --activate
 
 # Set working directory
 WORKDIR /app
@@ -69,7 +69,7 @@ EXPOSE 3000
 # Health check
 # This allows Docker and orchestrators to monitor container health
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health/live', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+  CMD node -e "const port = process.env.PORT || 3000; require('http').get('http://localhost:' + port + '/health/live', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Use dumb-init to run the application
 # This ensures proper signal handling and zombie process reaping
@@ -77,7 +77,5 @@ ENTRYPOINT ["dumb-init", "--"]
 
 # Start the application
 CMD ["node", "dist/main.js"]
-
-
 
 

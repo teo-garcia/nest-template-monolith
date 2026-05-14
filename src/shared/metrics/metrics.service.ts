@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { Counter, Histogram, register, Registry } from 'prom-client'
+import { ConfigService } from '@nestjs/config'
+import {
+  collectDefaultMetrics,
+  Counter,
+  Histogram,
+  Registry,
+} from 'prom-client'
 
 /**
  * Metrics Service
@@ -16,11 +22,17 @@ export class MetricsService {
   private readonly registry: Registry
   private readonly httpRequestCounter: Counter<string>
   private readonly httpRequestDuration: Histogram<string>
+  private readonly enabled: boolean
 
-  constructor() {
+  constructor(configService: ConfigService) {
+    this.enabled = configService.get<boolean>('config.metrics.enabled') ?? true
+
     // Create a new registry for this service
     // This allows us to have isolated metrics per service in a microservice architecture
     this.registry = new Registry()
+    this.registry.setDefaultLabels({
+      app: 'nest-monolith',
+    })
 
     // HTTP Request Counter
     // Counts total number of HTTP requests grouped by method, route, and status code
@@ -44,11 +56,19 @@ export class MetricsService {
       registers: [this.registry],
     })
 
-    // Register default metrics (process CPU, memory, event loop lag, etc.)
-    // These are useful for monitoring the Node.js process health
-    register.setDefaultLabels({
-      app: 'nest-monolith',
-    })
+    if (this.enabled) {
+      collectDefaultMetrics({
+        register: this.registry,
+      })
+    }
+  }
+
+  isEnabled(): boolean {
+    return this.enabled
+  }
+
+  getContentType(): string {
+    return this.registry.contentType
   }
 
   /**
@@ -65,6 +85,10 @@ export class MetricsService {
     status: number,
     duration: number
   ): void {
+    if (!this.enabled) {
+      return
+    }
+
     const labels = { method, route, status: status.toString() }
 
     // Increment the request counter
@@ -81,8 +105,7 @@ export class MetricsService {
    * This can be scraped by Prometheus or other compatible monitoring systems.
    */
   async getMetrics(): Promise<string> {
-    // Merge application metrics with default Node.js metrics
-    return await Registry.merge([this.registry, register]).metrics()
+    return await this.registry.metrics()
   }
 
   /**

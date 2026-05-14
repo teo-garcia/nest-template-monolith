@@ -37,6 +37,16 @@ export default registerAs('config', () => ({
     ),
   },
 
+  docs: {
+    enabled:
+      process.env.DOCS_ENABLED === undefined
+        ? process.env.NODE_ENV !== 'production'
+        : process.env.DOCS_ENABLED === 'true',
+    serverUrl:
+      process.env.OPENAPI_SERVER_URL ||
+      `http://localhost:${process.env.PORT || '3000'}`,
+  },
+
   // Database Configuration
   database: {
     host: process.env.DATABASE_HOST || 'localhost',
@@ -45,6 +55,7 @@ export default registerAs('config', () => ({
     password: process.env.DATABASE_PASSWORD || 'postgres',
     name: process.env.DATABASE_NAME || 'nest_monolith',
     url: process.env.DATABASE_URL,
+    poolMax: Number.parseInt(process.env.DATABASE_POOL_MAX || '10', 10),
     synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
     logging: process.env.DATABASE_LOGGING === 'true',
   },

@@ -27,7 +27,7 @@ export interface ApiResponse<T> {
 @Injectable()
 export class TransformInterceptor<T> implements NestInterceptor<
   T,
-  ApiResponse<T>
+  ApiResponse<T> | T
 > {
   private readonly logger = new Logger(TransformInterceptor.name)
 
@@ -36,11 +36,15 @@ export class TransformInterceptor<T> implements NestInterceptor<
   intercept(
     context: ExecutionContext,
     next: CallHandler
-  ): Observable<ApiResponse<T>> {
+  ): Observable<ApiResponse<T> | T> {
     const startTime = Date.now()
     const context_ = context.switchToHttp()
     const request = context_.getRequest<Request>()
     const response = context_.getResponse<Response>()
+
+    if (request.path === '/metrics' || request.path.startsWith('/health')) {
+      return next.handle()
+    }
     const env =
       this.configService.get<string>('config.app.env') ?? 'development'
     const version = this.configService.get<string>('config.app.version') ?? '1'

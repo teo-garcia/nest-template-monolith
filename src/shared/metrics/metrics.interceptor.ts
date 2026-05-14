@@ -4,6 +4,7 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common'
+import type { Request, Response } from 'express'
 import { Observable } from 'rxjs'
 import { tap } from 'rxjs/operators'
 
@@ -27,8 +28,8 @@ export class MetricsInterceptor implements NestInterceptor {
       return next.handle()
     }
 
-    const request = context.switchToHttp().getRequest()
-    const response = context.switchToHttp().getResponse()
+    const request = context.switchToHttp().getRequest<Request>()
+    const response = context.switchToHttp().getResponse<Response>()
 
     // Record the start time
     const startTime = Date.now()
@@ -42,7 +43,7 @@ export class MetricsInterceptor implements NestInterceptor {
 
           // Extract request information
           const method = request.method
-          const route = request.route?.path || request.url // Use route.path for cleaner metrics
+          const route = this.getRouteLabel(request)
           const status = response.statusCode
 
           // Record the metrics
@@ -52,12 +53,21 @@ export class MetricsInterceptor implements NestInterceptor {
           // Record metrics even for failed requests
           const duration = (Date.now() - startTime) / 1000
           const method = request.method
-          const route = request.route?.path || request.url
+          const route = this.getRouteLabel(request)
           const status = response.statusCode || 500
 
           this.metricsService.recordHttpRequest(method, route, status, duration)
         },
       })
     )
+  }
+
+  private getRouteLabel(request: Request): string {
+    if (typeof request.route?.path === 'string') {
+      const baseUrl = request.baseUrl === '/' ? '' : request.baseUrl
+      return `${baseUrl}${request.route.path}`
+    }
+
+    return request.path || request.url.split('?')[0] || 'unknown'
   }
 }

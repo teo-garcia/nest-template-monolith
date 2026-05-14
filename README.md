@@ -55,8 +55,8 @@ pnpm db:migrate
 pnpm dev
 ```
 
-The app starts on `http://localhost:3000` and the API docs are available at
-`/docs`.
+The app starts on `http://localhost:3000`. API docs are available at `/docs`
+when `DOCS_ENABLED=true`.
 
 ---
 
@@ -82,12 +82,12 @@ The app starts on `http://localhost:3000` and the API docs are available at
 
 ## Health and Observability
 
-| Endpoint            | Description                                          |
-| ------------------- | ---------------------------------------------------- |
-| `GET /health/live`  | Liveness probe                                       |
-| `GET /health/ready` | Readiness probe (checks Redis + DB)                  |
-| `GET /health`       | Full health summary with memory metrics              |
-| `GET /metrics`      | Prometheus metrics (request count, duration, memory) |
+| Endpoint            | Description                                    |
+| ------------------- | ---------------------------------------------- |
+| `GET /health/live`  | Liveness probe                                 |
+| `GET /health/ready` | Readiness probe (checks Redis + DB)            |
+| `GET /health`       | Full dependency health summary                 |
+| `GET /metrics`      | Prometheus metrics when `METRICS_ENABLED=true` |
 
 Structured JSON logs via Winston with daily rotation and request ID tracking.
 
@@ -95,13 +95,17 @@ Structured JSON logs via Winston with daily rotation and request ID tracking.
 
 ## Environment Variables
 
-| Variable       | Description                  | Default     |
-| -------------- | ---------------------------- | ----------- |
-| `PORT`         | Application port             | `3000`      |
-| `DATABASE_URL` | PostgreSQL connection string | Required    |
-| `REDIS_HOST`   | Redis server host            | `localhost` |
-| `REDIS_PORT`   | Redis server port            | `6379`      |
-| `LOG_LEVEL`    | Logging verbosity            | `debug`     |
+| Variable             | Description                             | Default     |
+| -------------------- | --------------------------------------- | ----------- |
+| `PORT`               | Application port                        | `3000`      |
+| `DOCS_ENABLED`       | Enables Swagger UI at `/docs`           | env-based   |
+| `OPENAPI_SERVER_URL` | Server URL advertised in OpenAPI output | local URL   |
+| `DATABASE_URL`       | PostgreSQL connection string            | Required    |
+| `DATABASE_POOL_MAX`  | Maximum PostgreSQL pool size            | `10`        |
+| `REDIS_HOST`         | Redis server host                       | `localhost` |
+| `REDIS_PORT`         | Redis server port                       | `6379`      |
+| `METRICS_ENABLED`    | Enables `/metrics` and metric recording | `true`      |
+| `LOG_LEVEL`          | Logging verbosity                       | `debug`     |
 
 See `.env.example` for the full list.
 
