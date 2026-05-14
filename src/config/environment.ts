@@ -15,7 +15,7 @@ const trimSlashes = (value: string): string => {
   return value.slice(start, end)
 }
 
-const normalizeApiPrefix = (value = '/api'): string => trimSlashes(value)
+const normalizeApiPrefix = (value = '/api/v1'): string => trimSlashes(value)
 
 /**
  * Environment Configuration

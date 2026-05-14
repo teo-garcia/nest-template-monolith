@@ -75,6 +75,7 @@ when `DOCS_ENABLED=true`.
 | `pnpm format`      | Format with Prettier           |
 | `pnpm db:migrate`  | Run database migrations        |
 | `pnpm db:generate` | Generate Prisma client         |
+| `pnpm db:seed`     | Seed deterministic sample data |
 | `pnpm db:studio`   | Open Prisma Studio             |
 | `pnpm db:deploy`   | Deploy migrations (production) |
 
@@ -98,6 +99,7 @@ Structured JSON logs via Winston with daily rotation and request ID tracking.
 | Variable             | Description                             | Default     |
 | -------------------- | --------------------------------------- | ----------- |
 | `PORT`               | Application port                        | `3000`      |
+| `API_PREFIX`         | Versioned API route prefix              | `/api/v1`   |
 | `DOCS_ENABLED`       | Enables Swagger UI at `/docs`           | env-based   |
 | `OPENAPI_SERVER_URL` | Server URL advertised in OpenAPI output | local URL   |
 | `DATABASE_URL`       | PostgreSQL connection string            | Required    |

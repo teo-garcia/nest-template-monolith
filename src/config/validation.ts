@@ -34,7 +34,7 @@ class EnvironmentVariables {
 
   @IsString()
   @IsOptional()
-  API_PREFIX?: string = '/api'
+  API_PREFIX?: string = '/api/v1'
 
   @IsString()
   @IsOptional()

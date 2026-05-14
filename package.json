@@ -100,7 +100,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset --force",
-    "db:seed": "ts-node prisma/seed.ts",
+    "db:seed": "ts-node --project tsconfig.seed.json prisma/seed.ts",
     "db:studio": "prisma studio",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

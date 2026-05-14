@@ -11,6 +11,12 @@ export default defineConfig([
     ignores: ['src/generated/**', 'prisma.config.ts'],
   },
   {
+    files: ['prisma/seed.ts'],
+    rules: {
+      'unicorn/prefer-top-level-await': 'off',
+    },
+  },
+  {
     files: [
       '**/*.test.{js,ts}',
       '**/*.spec.{js,ts}',

@@ -63,6 +63,7 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: development
+      API_PREFIX: /api/v1
       DATABASE_URL: postgresql://${DATABASE_USER:-postgres}:${DATABASE_PASSWORD:-postgres}@db:5432/${DATABASE_NAME:-nest_monolith}?schema=public
       REDIS_HOST: redis
       REDIS_PORT: 6379

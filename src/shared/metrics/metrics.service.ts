@@ -36,7 +36,7 @@ export class MetricsService {
 
     // HTTP Request Counter
     // Counts total number of HTTP requests grouped by method, route, and status code
-    // Example: http_requests_total{method="GET",route="/api/users",status="200"} 150
+    // Example: http_requests_total{method="GET",route="/api/v1/users",status="200"} 150
     this.httpRequestCounter = new Counter({
       name: 'http_requests_total',
       help: 'Total number of HTTP requests',
@@ -75,7 +75,7 @@ export class MetricsService {
    * Record an HTTP request
    *
    * @param method - HTTP method (GET, POST, etc.)
-   * @param route - Route path (e.g., /api/users)
+   * @param route - Route path (e.g., /api/v1/users)
    * @param status - HTTP status code (200, 404, 500, etc.)
    * @param duration - Request duration in seconds
    */

@@ -64,7 +64,7 @@ export class TasksController {
    * @returns Created task
    *
    * Example request:
-   * POST /api/tasks
+   * POST /api/v1/tasks
    * {
    *   "title": "Complete documentation",
    *   "description": "Write API docs for the tasks module",
@@ -84,10 +84,10 @@ export class TasksController {
    * @returns Paginated tasks
    *
    * Examples:
-   * GET /api/tasks
-   * GET /api/tasks?status=PENDING
-   * GET /api/tasks?priority=5
-   * GET /api/tasks?status=IN_PROGRESS&priority=3
+   * GET /api/v1/tasks
+   * GET /api/v1/tasks?status=PENDING
+   * GET /api/v1/tasks?priority=5
+   * GET /api/v1/tasks?status=IN_PROGRESS&priority=3
    */
   @Get()
   @ApiQuery({ name: 'page', required: false, type: Number, minimum: 1 })
@@ -123,7 +123,7 @@ export class TasksController {
    * @throws NotFoundException if task not found
    *
    * Example:
-   * GET /api/tasks/clx1234567890
+   * GET /api/v1/tasks/clx1234567890
    */
   @Get(':id')
   @ApiNotFoundResponse({ type: ErrorEnvelopeDto })
@@ -140,7 +140,7 @@ export class TasksController {
    * @throws NotFoundException if task not found
    *
    * Example request:
-   * PATCH /api/tasks/clx1234567890
+   * PATCH /api/v1/tasks/clx1234567890
    * {
    *   "status": "COMPLETED"
    * }
@@ -159,7 +159,7 @@ export class TasksController {
    * @throws NotFoundException if task not found
    *
    * Example:
-   * DELETE /api/tasks/clx1234567890
+   * DELETE /api/v1/tasks/clx1234567890
    */
   @Delete(':id')
   @HttpCode(204)

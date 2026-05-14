@@ -53,7 +53,7 @@ async function bootstrap(): Promise<void> {
   app.use(helmet())
 
   // Set global API prefix
-  // All routes will be prefixed with this (e.g., /api/users)
+  // All routes will be prefixed with this (e.g., /api/v1/users)
   // Health and metrics endpoints are excluded
   if (apiPrefix) {
     app.setGlobalPrefix(apiPrefix, {

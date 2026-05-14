@@ -20,11 +20,11 @@ export class MetricsController {
    * Example metrics output:
    * # HELP http_requests_total Total number of HTTP requests
    * # TYPE http_requests_total counter
-   * http_requests_total{method="GET",route="/api/users",status="200"} 150
+   * http_requests_total{method="GET",route="/api/v1/users",status="200"} 150
    *
    * # HELP http_request_duration_seconds Duration of HTTP requests in seconds
    * # TYPE http_request_duration_seconds histogram
-   * http_request_duration_seconds_bucket{method="GET",route="/api/users",status="200",le="0.005"} 10
+   * http_request_duration_seconds_bucket{method="GET",route="/api/v1/users",status="200",le="0.005"} 10
    * ...
    */
   @Get()
