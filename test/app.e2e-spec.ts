@@ -1,5 +1,4 @@
-import { INestApplication } from '@nestjs/common'
-import { RequestMethod } from '@nestjs/common'
+import { INestApplication, RequestMethod } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { Test, TestingModule } from '@nestjs/testing'

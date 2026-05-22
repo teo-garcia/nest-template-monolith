@@ -121,7 +121,6 @@ async function bootstrap(): Promise<void> {
       logger.error(
         `Shutdown timed out after ${shutdownTimeout}ms, forcing exit`
       )
-      // eslint-disable-next-line unicorn/no-process-exit
       process.exit(1)
     }, shutdownTimeout).unref()
   }
@@ -135,7 +134,6 @@ process.on('unhandledRejection', (reason, promise) => {
 })
 
 // Start the application
-// eslint-disable-next-line unicorn/prefer-top-level-await
 bootstrap().catch((error) => {
   console.error('Failed to start application:', error)
   throw error
