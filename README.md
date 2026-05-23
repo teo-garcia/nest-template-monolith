@@ -90,8 +90,8 @@ request handlers, seed scripts, or tests that point at a shared database.
 
 Production migrations must be backward-compatible with the currently running
 version. Use expand-contract changes: add nullable columns, new tables, and new
-indexes before code depends on them; backfill explicitly when needed; deploy code
-that stops reading the old shape; then remove or narrow schema in a later
+indexes before code depends on them; backfill explicitly when needed; deploy
+code that stops reading the old shape; then remove or narrow schema in a later
 release.
 
 `pnpm db:deploy` is safe to re-run when there are no pending migrations.
@@ -134,6 +134,20 @@ Structured JSON logs via Winston with daily rotation and request ID tracking.
 | `LOG_LEVEL`          | Logging verbosity                       | `debug`     |
 
 See `.env.example` for the full list.
+
+### Environment Promotion
+
+Use `.env.example` as the complete variable inventory, then review values before
+promoting beyond local development:
+
+- Set `NODE_ENV=production`, `LOG_LEVEL=info`, and `LOG_OUTPUT=json`.
+- Set `DOCS_ENABLED=false` unless protected docs are intentionally exposed.
+- Replace local Postgres, Redis, and pgAdmin defaults; pgAdmin is local-only.
+- Set `CORS_ORIGIN` to the deployed frontend origin. Do not use wildcards.
+- Keep `DATABASE_SYNCHRONIZE=false`; production schema changes go through
+  `pnpm db:deploy`.
+- Use `docker-compose.prod.yml` for a production-like local smoke test:
+  `docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build`.
 
 ---
 

@@ -1,0 +1,37 @@
+services:
+  db:
+    ports: !reset []
+    volumes: !override
+      - postgres_data:/var/lib/postgresql
+
+  redis:
+    ports: !reset []
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    environment:
+      NODE_ENV: production
+      API_PREFIX: ${API_PREFIX:-/api/v1}
+      DOCS_ENABLED: ${DOCS_ENABLED:-false}
+      OPENAPI_SERVER_URL: ${OPENAPI_SERVER_URL:-http://localhost:3000}
+      DATABASE_URL: postgresql://${DATABASE_USER:-postgres}:${DATABASE_PASSWORD:-postgres}@db:5432/${DATABASE_NAME:-nest_monolith}?schema=public
+      DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-10}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_TTL: ${REDIS_TTL:-3600}
+      PORT: ${PORT:-3000}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_OUTPUT: ${LOG_OUTPUT:-json}
+      CORS_ENABLED: ${CORS_ENABLED:-true}
+      CORS_ORIGIN: ${CORS_ORIGIN:?Set CORS_ORIGIN to the deployed frontend origin}
+      THROTTLE_TTL: ${THROTTLE_TTL:-60}
+      THROTTLE_LIMIT: ${THROTTLE_LIMIT:-100}
+      METRICS_ENABLED: ${METRICS_ENABLED:-true}
+    volumes: !reset []
+
+  pgadmin:
+    profiles:
+      - local-tools
