@@ -123,6 +123,7 @@ Structured JSON logs via Winston with daily rotation and request ID tracking.
 | Variable             | Description                             | Default     |
 | -------------------- | --------------------------------------- | ----------- |
 | `PORT`               | Application port                        | `3000`      |
+| `HTTP_PORT`          | Nginx host port in production compose   | `8080`      |
 | `API_PREFIX`         | Versioned API route prefix              | `/api/v1`   |
 | `DOCS_ENABLED`       | Enables Swagger UI at `/docs`           | env-based   |
 | `OPENAPI_SERVER_URL` | Server URL advertised in OpenAPI output | local URL   |
@@ -148,6 +149,8 @@ promoting beyond local development:
   `pnpm db:deploy`.
 - Use `docker-compose.prod.yml` for a production-like local smoke test:
   `docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build`.
+  Nginx is the public entry point on `HTTP_PORT`; the app, Postgres, and Redis
+  ports are internal to the Compose network.
 
 ---
 
