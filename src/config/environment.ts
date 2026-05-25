@@ -90,4 +90,12 @@ export default registerAs('config', () => ({
   metrics: {
     enabled: process.env.METRICS_ENABLED !== 'false', // Enabled by default
   },
+
+  telemetry: {
+    enabled: process.env.OTEL_ENABLED !== 'false',
+    serviceName: process.env.OTEL_SERVICE_NAME || 'nest-template-monolith',
+    tracesEndpoint:
+      process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT ||
+      'http://localhost:4318/v1/traces',
+  },
 }))

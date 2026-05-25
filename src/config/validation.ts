@@ -140,6 +140,19 @@ class EnvironmentVariables {
   @IsBoolean()
   @IsOptional()
   METRICS_ENABLED?: boolean
+
+  // Tracing
+  @IsBoolean()
+  @IsOptional()
+  OTEL_ENABLED?: boolean
+
+  @IsString()
+  @IsOptional()
+  OTEL_SERVICE_NAME?: string
+
+  @IsString()
+  @IsOptional()
+  OTEL_EXPORTER_OTLP_TRACES_ENDPOINT?: string
 }
 
 /**

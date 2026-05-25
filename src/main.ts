@@ -7,12 +7,14 @@ import helmet from 'helmet'
 import { AppModule } from './app.module'
 import { GlobalExceptionFilter } from './shared/filters'
 import {
+  LoggingInterceptor,
   RequestIdInterceptor,
   TransformInterceptor,
 } from './shared/interceptors'
 import { AppLogger } from './shared/logger/logger.service'
 import { MetricsInterceptor } from './shared/metrics'
 import { GlobalValidationPipe } from './shared/pipes'
+import { shutdownTelemetry, startTelemetry } from './telemetry'
 
 /**
  * Bootstrap the monolith application
@@ -26,6 +28,8 @@ import { GlobalValidationPipe } from './shared/pipes'
  * 6. Start listening on configured port
  */
 async function bootstrap(): Promise<void> {
+  await startTelemetry()
+
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
   })
@@ -86,7 +90,8 @@ async function bootstrap(): Promise<void> {
   app.useGlobalInterceptors(
     new RequestIdInterceptor(), // First: Generate request ID
     new TransformInterceptor(configService), // Second: Transform responses
-    app.get(MetricsInterceptor) // Third: Record metrics
+    app.get(MetricsInterceptor), // Third: Record metrics
+    new LoggingInterceptor(logger) // Fourth: Correlate request logs with spans
   )
 
   if (docsEnabled) {
@@ -117,6 +122,9 @@ async function bootstrap(): Promise<void> {
 
   const forceExit = (signal: string) => {
     logger.log(`${signal} received, starting graceful shutdown...`)
+    void shutdownTelemetry().catch((error: unknown) => {
+      logger.error('Failed to shut down telemetry', String(error))
+    })
     setTimeout(() => {
       logger.error(
         `Shutdown timed out after ${shutdownTimeout}ms, forcing exit`
