@@ -1,0 +1,9 @@
+allowBuilds:
+  prisma: true
+  "@prisma/client": true
+  "@nestjs/core": true
+  "@prisma/engines": true
+  "@scarf/scarf": true
+  "@swc/core": true
+  protobufjs: true
+  unrs-resolver: true
