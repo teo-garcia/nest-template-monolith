@@ -192,12 +192,12 @@ promoting beyond local development:
 
 ## Related Templates
 
-| Template                     | Description                 |
-| ---------------------------- | --------------------------- |
-| `nest-template-microservice` | NestJS event-driven service |
-| `react-template-next`        | Next.js frontend            |
-| `react-template-rr`          | React Router SPA            |
-| `fastapi-template-monolith`  | FastAPI equivalent          |
+| Template                          | Description                 |
+| --------------------------------- | --------------------------- |
+| `nest-template-microservice`      | NestJS event-driven service |
+| `next-template-fullstack`         | Next.js full-stack app      |
+| `react-router-template-fullstack` | React Router full-stack app |
+| `fastapi-template-monolith`       | FastAPI equivalent          |
 
 ---
 
