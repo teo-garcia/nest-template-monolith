@@ -206,7 +206,42 @@ describe('AppController (e2e)', () => {
         .expect((response) => {
           const schemas = response.body.components.schemas
           expect(schemas).toHaveProperty('ErrorEnvelopeDto')
+          expect(schemas).toHaveProperty('SuccessEnvelopeDto')
           expect(schemas).toHaveProperty('PaginatedTasksResponseDto')
+        })
+    })
+
+    it('/docs-json (GET) should document success payloads inside the envelope', () => {
+      return request(app.getHttpServer())
+        .get('/docs-json')
+        .expect(200)
+        .expect((response) => {
+          const listSchema =
+            response.body.paths[`${apiPrefix}/tasks`].get.responses['200']
+              .content['application/json'].schema
+
+          expect(listSchema.allOf[0].$ref).toBe(
+            '#/components/schemas/SuccessEnvelopeDto'
+          )
+          expect(listSchema.allOf[1].properties.data.$ref).toBe(
+            '#/components/schemas/PaginatedTasksResponseDto'
+          )
+
+          const createSchema =
+            response.body.paths[`${apiPrefix}/tasks`].post.responses['201']
+              .content['application/json'].schema
+
+          expect(createSchema.allOf[0].$ref).toBe(
+            '#/components/schemas/SuccessEnvelopeDto'
+          )
+          expect(createSchema.allOf[1].properties.data.$ref).toBe(
+            '#/components/schemas/TaskResponseDto'
+          )
+
+          // 204 has no body, so it must not advertise an envelope.
+          const deleteResponses =
+            response.body.paths[`${apiPrefix}/tasks/{id}`].delete.responses
+          expect(deleteResponses['204'].content).toBeUndefined()
         })
     })
   })

@@ -13,15 +13,20 @@ import {
 import {
   ApiBadRequestResponse,
   ApiExtraModels,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
-  ApiOkResponse,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger'
 
 import { TaskStatus } from '../../generated/prisma/client'
-import { ErrorEnvelopeDto } from '../../shared/dto'
-import { CreateTaskDto, PaginatedTasksResponseDto, UpdateTaskDto } from './dto'
+import { ApiEnvelopeResponse, ErrorEnvelopeDto } from '../../shared/dto'
+import {
+  CreateTaskDto,
+  PaginatedTasksResponseDto,
+  TaskResponseDto,
+  UpdateTaskDto,
+} from './dto'
 import { TasksService } from './tasks.service'
 
 @ApiTags('Tasks')
@@ -72,6 +77,10 @@ export class TasksController {
    * }
    */
   @Post()
+  @ApiEnvelopeResponse(TaskResponseDto, {
+    status: 201,
+    description: 'The created task, wrapped in the success envelope.',
+  })
   async create(@Body() createTaskDto: CreateTaskDto) {
     return this.tasksService.create(createTaskDto)
   }
@@ -98,7 +107,9 @@ export class TasksController {
     minimum: 1,
     maximum: 100,
   })
-  @ApiOkResponse({ type: PaginatedTasksResponseDto })
+  @ApiEnvelopeResponse(PaginatedTasksResponseDto, {
+    description: 'A page of tasks, wrapped in the success envelope.',
+  })
   async findAll(
     @Query('status') status?: TaskStatus,
     @Query('priority') priority?: string,
@@ -126,6 +137,9 @@ export class TasksController {
    * GET /api/v1/tasks/clx1234567890
    */
   @Get(':id')
+  @ApiEnvelopeResponse(TaskResponseDto, {
+    description: 'The requested task, wrapped in the success envelope.',
+  })
   @ApiNotFoundResponse({ type: ErrorEnvelopeDto })
   async findOne(@Param('id') id: string) {
     return this.tasksService.findOne(id)
@@ -146,6 +160,9 @@ export class TasksController {
    * }
    */
   @Patch(':id')
+  @ApiEnvelopeResponse(TaskResponseDto, {
+    description: 'The updated task, wrapped in the success envelope.',
+  })
   @ApiNotFoundResponse({ type: ErrorEnvelopeDto })
   async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
     return this.tasksService.update(id, updateTaskDto)
@@ -163,6 +180,9 @@ export class TasksController {
    */
   @Delete(':id')
   @HttpCode(204)
+  @ApiNoContentResponse({
+    description: 'Task deleted. 204 carries no body, so it is not enveloped.',
+  })
   @ApiNotFoundResponse({ type: ErrorEnvelopeDto })
   async remove(@Param('id') id: string) {
     await this.tasksService.remove(id)
