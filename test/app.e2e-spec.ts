@@ -147,43 +147,43 @@ describe('AppController (e2e)', () => {
   })
 
   describe('Health Checks', () => {
-    it('/health/live (GET) should return 200', () => {
+    it('/health/live (GET) should report liveness without dependency checks', () => {
       return request(app.getHttpServer())
         .get('/health/live')
         .expect(200)
         .expect((res) => {
           expect(res.body).toHaveProperty('status', 'ok')
+          expect(typeof res.body.timestamp).toBe('string')
+          expect(typeof res.body.version).toBe('string')
+          // Liveness must not probe dependencies, or a slow database would
+          // trigger container restarts.
+          expect(res.body.checks).toBeUndefined()
           expect(res.headers).not.toHaveProperty('x-ratelimit-limit')
         })
     })
 
-    it('/health/ready (GET) should check dependencies', () => {
+    it('/health/ready (GET) should answer in the shared health contract', () => {
       return request(app.getHttpServer())
         .get('/health/ready')
         .expect((res) => {
           expect([200, 503]).toContain(res.status)
-          const details = {
-            ...res.body.info,
-            ...res.body.error,
-          }
-          expect(details).toHaveProperty('database')
-          expect(details).toHaveProperty('redis')
+          expect(['ok', 'degraded', 'down']).toContain(res.body.status)
+          expect(typeof res.body.timestamp).toBe('string')
+          expect(typeof res.body.version).toBe('string')
+          expect(['up', 'down']).toContain(res.body.checks.database)
+          expect(['up', 'down']).toContain(res.body.checks.redis)
+          // 200 only when everything is up; anything else takes the instance
+          // out of rotation.
+          expect(res.status).toBe(res.body.status === 'ok' ? 200 : 503)
         })
     })
 
-    it('/health (GET) should return comprehensive health', () => {
-      return request(app.getHttpServer())
-        .get('/health')
-        .expect((res) => {
-          expect([200, 503]).toContain(res.status)
-          expect(res.body).toHaveProperty('status')
-          const details = {
-            ...res.body.info,
-            ...res.body.error,
-          }
-          expect(details).toHaveProperty('database')
-          expect(details).toHaveProperty('redis')
-        })
+    it('/health (GET) should agree with /health/ready', async () => {
+      const overall = await request(app.getHttpServer()).get('/health')
+      const ready = await request(app.getHttpServer()).get('/health/ready')
+
+      expect(overall.body.status).toBe(ready.body.status)
+      expect(overall.body.checks).toEqual(ready.body.checks)
     })
   })
 

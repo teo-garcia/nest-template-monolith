@@ -1,20 +1,16 @@
-import { Controller, Get } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
-import { HealthCheck, HealthCheckService } from '@nestjs/terminus'
+import { Controller, Get, Res } from '@nestjs/common'
+import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { SkipThrottle } from '@nestjs/throttler'
+import type { Response } from 'express'
 
-import { PrismaHealthIndicator } from './prisma.health'
-import { RedisHealthIndicator } from './redis.health'
+import { HealthResponseDto } from './health.contract'
+import { HealthService } from './health.service'
 
 @ApiTags('Health')
 @SkipThrottle()
 @Controller('health')
 export class HealthController {
-  constructor(
-    private readonly health: HealthCheckService,
-    private readonly prisma: PrismaHealthIndicator,
-    private readonly redis: RedisHealthIndicator
-  ) {}
+  constructor(private readonly healthService: HealthService) {}
 
   /**
    * Liveness Probe
@@ -24,8 +20,9 @@ export class HealthController {
    * This is a lightweight check that should always succeed if the app is running.
    */
   @Get('live')
-  checkLiveness() {
-    return { status: 'ok' }
+  @ApiOkResponse({ type: HealthResponseDto })
+  checkLiveness(): HealthResponseDto {
+    return this.healthService.liveness()
   }
 
   /**
@@ -36,9 +33,12 @@ export class HealthController {
    * Used by load balancers and orchestrators to route traffic only to ready instances.
    */
   @Get('ready')
-  @HealthCheck()
-  async checkReadiness() {
-    return this.checkDependencies()
+  @ApiOkResponse({ type: HealthResponseDto })
+  @ApiResponse({ status: 503, type: HealthResponseDto })
+  async checkReadiness(
+    @Res({ passthrough: true }) response: Response
+  ): Promise<HealthResponseDto> {
+    return this.respond(response)
   }
 
   /**
@@ -48,15 +48,23 @@ export class HealthController {
    * Provides detailed status information for monitoring and debugging.
    */
   @Get()
-  @HealthCheck()
-  async check() {
-    return this.checkDependencies()
+  @ApiOkResponse({ type: HealthResponseDto })
+  @ApiResponse({ status: 503, type: HealthResponseDto })
+  async check(
+    @Res({ passthrough: true }) response: Response
+  ): Promise<HealthResponseDto> {
+    return this.respond(response)
   }
 
-  private async checkDependencies() {
-    return this.health.check([
-      () => this.prisma.isHealthy('database'),
-      () => this.redis.isHealthy('redis'),
-    ])
+  /**
+   * A degraded or down report answers 503 so orchestrators and load balancers
+   * take the instance out of rotation.
+   */
+  private async respond(response: Response): Promise<HealthResponseDto> {
+    const report = await this.healthService.report()
+
+    response.status(report.status === 'ok' ? 200 : 503)
+
+    return report
   }
 }

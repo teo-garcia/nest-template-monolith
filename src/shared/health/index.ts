@@ -1,4 +1,4 @@
+export * from './health.contract'
 export * from './health.controller'
 export * from './health.module'
-export * from './prisma.health'
-export * from './redis.health'
+export * from './health.service'
