@@ -116,7 +116,9 @@ describe('AppController (e2e)', () => {
       .build()
     if (docsEnabled) {
       const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig)
-      SwaggerModule.setup('docs', app, swaggerDocument)
+      SwaggerModule.setup('docs', app, swaggerDocument, {
+        jsonDocumentUrl: 'openapi.json',
+      })
     }
 
     app.useGlobalInterceptors(
@@ -199,9 +201,9 @@ describe('AppController (e2e)', () => {
         })
     })
 
-    it('/docs-json (GET) should expose shared contract schemas', () => {
+    it('/openapi.json (GET) should expose shared contract schemas', () => {
       return request(app.getHttpServer())
-        .get('/docs-json')
+        .get('/openapi.json')
         .expect(200)
         .expect((response) => {
           const schemas = response.body.components.schemas
@@ -211,9 +213,9 @@ describe('AppController (e2e)', () => {
         })
     })
 
-    it('/docs-json (GET) should document success payloads inside the envelope', () => {
+    it('/openapi.json (GET) should document success payloads inside the envelope', () => {
       return request(app.getHttpServer())
-        .get('/docs-json')
+        .get('/openapi.json')
         .expect(200)
         .expect((response) => {
           const listSchema =

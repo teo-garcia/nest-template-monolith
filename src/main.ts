@@ -101,7 +101,11 @@ async function bootstrap(): Promise<void> {
       .addServer(openApiServerUrl)
       .build()
     const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig)
-    SwaggerModule.setup('docs', app, swaggerDocument)
+    // The spec is served at /openapi.json, the path every other template in
+    // the portfolio uses. Swagger's default would be /docs-json.
+    SwaggerModule.setup('docs', app, swaggerDocument, {
+      jsonDocumentUrl: 'openapi.json',
+    })
   }
 
   const shutdownTimeout =
