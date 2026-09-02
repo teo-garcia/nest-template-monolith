@@ -88,10 +88,20 @@
       ]
     },
     "collectCoverageFrom": [
-      "src/**/*.(t|j)s"
+      "src/**/*.(t|j)s",
+      "!src/generated/**",
+      "!src/**/*.spec.ts",
+      "!src/**/*.d.ts",
+      "!src/main.ts",
+      "!src/telemetry.ts"
     ],
     "coverageDirectory": "./coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ]
   },
   "license": "MIT",
   "name": "nest-template-monolith",
