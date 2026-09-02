@@ -96,8 +96,8 @@ release.
 
 `pnpm db:deploy` is safe to re-run when there are no pending migrations.
 Production rollback is a database backup restore plus compatible code, or a
-forward-fix migration. Prisma does not provide a governed production
-`db:rollback` command in this template; `pnpm db:reset` is local/test-only.
+forward-fix migration. Prisma does not provide a production `db:rollback`
+command in this template; `pnpm db:reset` is local/test-only.
 
 Avoid destructive one-step migrations, renaming columns without a compatibility
 window, adding non-null columns without defaults/backfills, and combining schema
@@ -175,18 +175,6 @@ promoting beyond local development:
 | `@teo-garcia/eslint-config-shared`   | ESLint rules        |
 | `@teo-garcia/prettier-config-shared` | Prettier formatting |
 | `@teo-garcia/tsconfig-shared`        | TypeScript settings |
-
----
-
-## Shared Governance
-
-| Area               | Tooling                                             |
-| ------------------ | --------------------------------------------------- |
-| Dependency updates | Renovate                                            |
-| Issue intake       | GitHub issue templates                              |
-| Change review      | Pull request template                               |
-| CI                 | GitHub Actions for lint, typecheck, build, and test |
-| Security           | Trivy, dependency review, `pnpm audit`              |
 
 ---
 
