@@ -2,7 +2,7 @@ import { Controller, Get } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ApiTags } from '@nestjs/swagger'
 
-import { ApiEnvelopeResponse, AppInfoDto } from './shared/dto'
+import { ApiEnvelopeResponse, AppInfoDto } from './shared/dto/index.js'
 
 /**
  * App Controller

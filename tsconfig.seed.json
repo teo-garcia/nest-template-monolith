@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "module": "CommonJS",
-    "moduleResolution": "Node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "resolvePackageJsonExports": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2023",

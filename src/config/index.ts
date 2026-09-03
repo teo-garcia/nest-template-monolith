@@ -1,2 +1,2 @@
-export { default as environmentConfig } from './environment'
-export * from './validation'
+export { default as environmentConfig } from './environment.js'
+export * from './validation.js'

@@ -1,4 +1,4 @@
-export { LoggingInterceptor } from './logging.interceptor'
-export { RequestIdInterceptor } from './request-id.interceptor'
-export type { ApiResponse } from './transform.interceptor'
-export { TransformInterceptor } from './transform.interceptor'
+export { LoggingInterceptor } from './logging.interceptor.js'
+export { RequestIdInterceptor } from './request-id.interceptor.js'
+export type { ApiResponse } from './transform.interceptor.js'
+export { TransformInterceptor } from './transform.interceptor.js'

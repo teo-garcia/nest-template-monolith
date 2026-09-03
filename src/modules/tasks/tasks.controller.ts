@@ -19,15 +19,18 @@ import {
   ApiTags,
 } from '@nestjs/swagger'
 
-import { TaskStatus } from '../../generated/prisma/client'
-import { ApiEnvelopeResponse, ErrorEnvelopeDto } from '../../shared/dto'
+import { TaskStatus } from '../../generated/prisma/client.js'
+import {
+  ApiEnvelopeResponse,
+  ErrorEnvelopeDto,
+} from '../../shared/dto/index.js'
 import {
   CreateTaskDto,
   PaginatedTasksResponseDto,
   TaskResponseDto,
   UpdateTaskDto,
-} from './dto'
-import { TasksService } from './tasks.service'
+} from './dto/index.js'
+import { TasksService } from './tasks.service.js'
 
 @ApiTags('Tasks')
 @ApiExtraModels(PaginatedTasksResponseDto, ErrorEnvelopeDto)
@@ -111,7 +114,11 @@ export class TasksController {
     description: 'A page of tasks, wrapped in the success envelope.',
   })
   async findAll(
-    @Query('status') status?: TaskStatus,
+    // NOTE: keep query params typed as primitives. SWC (used by Vitest)
+    // emits the TaskStatus const object as design:paramtypes metadata for a
+    // `TaskStatus` annotation, which bypasses GlobalValidationPipe's
+    // primitive skip-list and crashes class-validator on undefined.
+    @Query('status') status?: string,
     @Query('priority') priority?: string,
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string
@@ -119,7 +126,7 @@ export class TasksController {
     // Parse priority to number if provided
     const priorityNum = priority ? Number.parseInt(priority, 10) : undefined
     return this.tasksService.findAll({
-      status,
+      status: status as TaskStatus | undefined,
       priority: priorityNum,
       page: this.parsePositiveInteger('page', page, 1),
       pageSize: this.parsePositiveInteger('pageSize', pageSize, 20, 100),

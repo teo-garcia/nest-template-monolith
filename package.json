@@ -1,11 +1,11 @@
 {
   "author": "teo-garcia",
   "dependencies": {
-    "@nestjs/common": "^11.1.6",
-    "@nestjs/config": "^4.0.2",
-    "@nestjs/core": "^11.1.6",
-    "@nestjs/platform-express": "^11.1.6",
-    "@nestjs/swagger": "^11.2.6",
+    "@nestjs/common": "^12.0.1",
+    "@nestjs/config": "^12.0.0",
+    "@nestjs/core": "^12.0.1",
+    "@nestjs/platform-express": "^12.0.1",
+    "@nestjs/swagger": "^12.0.1",
     "@nestjs/throttler": "^6.5.0",
     "@opentelemetry/api": "^1.9.1",
     "@opentelemetry/auto-instrumentations-node": "^0.76.0",
@@ -34,78 +34,45 @@
     "@eslint/compat": "^2.0.3",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^10.0.0",
-    "@nestjs/cli": "^11.0.10",
-    "@nestjs/schematics": "^11.0.8",
-    "@nestjs/testing": "^11.1.6",
+    "@nestjs/cli": "^12.0.0",
+    "@nestjs/schematics": "^12.0.0",
+    "@nestjs/testing": "^12.0.1",
+    "@swc/core": "^1.13.5",
     "@teo-garcia/eslint-config-shared": "^0.4.2",
     "@teo-garcia/prettier-config-shared": "^0.2.10",
     "@teo-garcia/tsconfig-shared": "^0.2.1",
     "@types/express": "^5.0.3",
-    "@types/jest": "^30.0.0",
     "@types/node": "^24.7.0",
     "@types/pg": "^8.11.10",
     "@types/supertest": "^7.0.0",
     "@typescript-eslint/eslint-plugin": "^8.46.0",
+    "@vitest/coverage-v8": "^4.0.0",
     "eslint": "^10.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-jest": "^29.0.1",
     "eslint-plugin-security": "^4.0.0",
     "globals": "^17.0.0",
     "husky": "^9.1.7",
-    "jest": "^30.2.0",
     "lint-staged": "^17.0.0",
     "prettier": "^3.6.2",
     "prisma": "7.8.0",
     "source-map-support": "^0.5.21",
     "supertest": "^7.1.4",
-    "ts-jest": "^29.4.4",
-    "ts-loader": "^9.5.4",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.23.0",
     "typescript": "^6.0.0",
-    "typescript-eslint": "^8.46.0"
+    "typescript-eslint": "^8.46.0",
+    "unplugin-swc": "^1.5.11",
+    "vitest": "^4.0.0"
   },
   "packageManager": "pnpm@11.5.1",
   "engines": {
     "node": ">=24",
     "pnpm": ">=9"
   },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": ".",
-    "testRegex": "src/.*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": [
-        "ts-jest",
-        {
-          "tsconfig": "<rootDir>/tsconfig.spec.json"
-        }
-      ]
-    },
-    "collectCoverageFrom": [
-      "src/**/*.(t|j)s",
-      "!src/generated/**",
-      "!src/**/*.spec.ts",
-      "!src/**/*.d.ts",
-      "!src/main.ts",
-      "!src/telemetry.ts"
-    ],
-    "coverageDirectory": "./coverage",
-    "testEnvironment": "node",
-    "coverageReporters": [
-      "text",
-      "lcov",
-      "html"
-    ]
-  },
   "license": "MIT",
   "name": "nest-template-monolith",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "nest build",
     "check": "pnpm lint:es:check && pnpm lint:ts && pnpm format:check && pnpm test",
@@ -114,7 +81,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset --force",
-    "db:seed": "ts-node --project tsconfig.seed.json prisma/seed.ts",
+    "db:seed": "tsx --project tsconfig.seed.json prisma/seed.ts",
     "db:studio": "prisma studio",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -126,13 +93,13 @@
     "dev": "nest start --watch",
     "start": "nest start",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
-    "test": "jest",
-    "coverage": "jest --coverage",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "NODE_OPTIONS=--experimental-vm-modules DOTENV_CONFIG_PATH=.env.test jest --config ./test/jest-e2e.json --forceExit",
-    "test:watch": "jest --watch"
+    "start:prod": "node dist/main.js",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage",
+    "test:cov": "vitest run --coverage",
+    "test:debug": "vitest --inspect-brk --runInBand",
+    "test:e2e": "DOTENV_CONFIG_PATH=.env.test vitest run --config ./vitest.e2e.config.ts",
+    "test:watch": "vitest"
   },
   "version": "0.0.0"
 }

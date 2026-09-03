@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { requireTestDatabase } from './database-safety'
+import { requireTestDatabase } from './database-safety.js'
 
 const envTestExamplePath = path.resolve(process.cwd(), '.env.test.example')
 
