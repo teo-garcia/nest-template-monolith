@@ -39,6 +39,7 @@ export class GlobalValidationPipe implements PipeTransform {
 
       throw new UnprocessableEntityException({
         message: 'Validation failed',
+        error: 'ValidationError',
         errors: errorMessages,
         statusCode: 422,
       })

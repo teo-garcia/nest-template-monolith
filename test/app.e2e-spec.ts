@@ -146,6 +146,23 @@ describe('AppController (e2e)', () => {
           expect(data).toHaveProperty('status', 'ok')
         })
     })
+
+    it('returns the shared error envelope for an unmatched route', async () => {
+      const requestId = '00000000-0000-4000-8000-000000000001'
+      const response = await request(app.getHttpServer())
+        .get(`${apiPrefix}/definitely-missing`)
+        .set('X-Request-ID', requestId)
+        .expect(404)
+
+      expect(response.headers['x-request-id']).toBe(requestId)
+      expect(response.body).toMatchObject({
+        success: false,
+        statusCode: 404,
+        method: 'GET',
+        path: `${apiPrefix}/definitely-missing`,
+        meta: { requestId },
+      })
+    })
   })
 
   describe('Health Checks', () => {
@@ -317,6 +334,7 @@ describe('AppController (e2e)', () => {
         success: false,
         statusCode: 422,
         method: 'POST',
+        error: 'ValidationError',
       })
       expect(response.body.path).toContain(`${apiPrefix}/tasks`)
       expect(response.body.meta).toHaveProperty('requestId')

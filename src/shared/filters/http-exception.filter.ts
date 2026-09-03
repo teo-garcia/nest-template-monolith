@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto'
+
 import {
   ArgumentsHost,
   Catch,
@@ -21,8 +23,8 @@ interface ErrorResponse {
   message: string | string[]
   error?: string
   errors?: Record<string, string[]>
-  meta?: {
-    requestId?: string
+  meta: {
+    requestId: string
   }
 }
 
@@ -39,6 +41,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     this.logError(exception, request, errorResponse)
 
+    response.setHeader('X-Request-ID', errorResponse.meta.requestId)
     response.status(errorResponse.statusCode).json(errorResponse)
   }
 
@@ -49,11 +52,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const timestamp = new Date().toISOString()
     const path = request.url
     const method = request.method
-    const requestId =
+    const attachedRequestId =
       typeof (request as { id?: unknown }).id === 'string'
         ? (request as { id?: string }).id
         : undefined
-    const meta = requestId ? { requestId } : undefined
+    const headerRequestId = request.get('X-Request-ID')
+    const requestId =
+      attachedRequestId ??
+      (headerRequestId && headerRequestId.length > 0
+        ? headerRequestId
+        : randomUUID())
+    const meta = { requestId }
 
     // Handle HTTP exceptions (including validation errors)
     if (exception instanceof HttpException) {
@@ -128,7 +137,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     timestamp: string,
     path: string,
     method: string,
-    meta?: ErrorResponse['meta']
+    meta: ErrorResponse['meta']
   ): ErrorResponse {
     switch (exception.code) {
       case 'P2002': {

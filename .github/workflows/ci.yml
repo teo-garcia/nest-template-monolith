@@ -53,7 +53,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Create test environment file
-        run: cp .env.test.example .env.test
+        run: |
+          cp .env.test.example .env
+          cp .env.test.example .env.test
 
       - name: Generate Prisma Client
         run: pnpm db:generate
@@ -87,3 +89,34 @@ jobs:
           name: coverage-report
           path: coverage/
           retention-days: 7
+
+      - name: Migrate conformance database
+        run: pnpm db:deploy
+
+      - name: Start conformance server
+        env:
+          OTEL_ENABLED: "false"
+          PORT: "43118"
+        run: |
+          pnpm start:prod > "$RUNNER_TEMP/backend-conformance.log" 2>&1 &
+          echo "$!" > "$RUNNER_TEMP/backend-conformance.pid"
+
+      - name: Shared backend conformance
+        uses: teo-garcia/templates/conformance/backend@da8df26c4c9a9f0299d227be6164898301e1888f
+        with:
+          base_url: http://127.0.0.1:43118
+
+      - name: Upload conformance log
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-conformance-log
+          path: ${{ runner.temp }}/backend-conformance.log
+          retention-days: 7
+
+      - name: Stop conformance server
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/backend-conformance.pid" ]; then
+            kill "$(cat "$RUNNER_TEMP/backend-conformance.pid")" 2>/dev/null || true
+          fi
