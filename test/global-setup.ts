@@ -3,7 +3,7 @@ import path from 'node:path'
 
 import dotenv from 'dotenv'
 
-import { requireTestDatabase } from './database-safety'
+import { requireTestDatabase } from './database-safety.js'
 
 export default async function globalSetup() {
   const rootDirectory = process.cwd()

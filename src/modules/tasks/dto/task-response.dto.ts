@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
-import { TaskStatus } from '../../../generated/prisma/client'
+import { TaskStatus } from '../../../generated/prisma/client.js'
 
 export class TaskResponseDto {
   @ApiProperty()

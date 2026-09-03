@@ -3,16 +3,15 @@ import { ConfigService } from '@nestjs/config'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { App } from 'supertest/types'
 
-import { AppModule } from '../src/app.module'
-import { GlobalExceptionFilter } from '../src/shared/filters'
+import { AppModule } from '../src/app.module.js'
+import { GlobalExceptionFilter } from '../src/shared/filters/index.js'
 import {
   RequestIdInterceptor,
   TransformInterceptor,
-} from '../src/shared/interceptors'
-import { MetricsInterceptor } from '../src/shared/metrics'
-import { GlobalValidationPipe } from '../src/shared/pipes'
+} from '../src/shared/interceptors/index.js'
+import { MetricsInterceptor } from '../src/shared/metrics/index.js'
+import { GlobalValidationPipe } from '../src/shared/pipes/index.js'
 
 const trimSlashes = (value: string): string => {
   let start = 0
@@ -63,7 +62,7 @@ const dataOf = <T>(body: { data: T }): T => body.data
  * - Input validation
  */
 describe('AppController (e2e)', () => {
-  let app: INestApplication<App>
+  let app: INestApplication
   let apiPrefix = '/api'
 
   beforeAll(async () => {
