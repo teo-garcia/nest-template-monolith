@@ -3,15 +3,15 @@
 # ================================
 FROM node:24-alpine AS builder
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@10.33.2 --activate
+# Install pnpm from package.json's packageManager field
+RUN corepack enable
 
 # Set working directory
 WORKDIR /app
 
 # Copy package files
 # Copying these first allows Docker to cache the dependency layer
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Install all dependencies (including devDependencies for building)
 RUN pnpm install --frozen-lockfile
@@ -27,8 +27,8 @@ COPY . .
 # This compiles TypeScript to JavaScript in the /dist directory
 RUN pnpm build
 
-# Remove development dependencies to reduce image size
-RUN pnpm prune --prod
+# Remove development dependencies without running development-only lifecycle hooks
+RUN CI=true pnpm prune --prod --ignore-scripts
 
 # ================================
 # Production Stage
@@ -46,6 +46,7 @@ RUN addgroup -g 1001 -S nodejs && \
 
 # Set working directory
 WORKDIR /app
+RUN mkdir -p logs && chown -R nestjs:nodejs /app
 
 # Copy node_modules from builder
 # This includes production dependencies only
@@ -77,5 +78,3 @@ ENTRYPOINT ["dumb-init", "--"]
 
 # Start the application
 CMD ["node", "dist/main.js"]
-
-

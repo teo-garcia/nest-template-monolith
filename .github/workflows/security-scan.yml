@@ -12,6 +12,7 @@ on:
       - "docker-compose.yml"
       - "package.json"
       - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
   workflow_dispatch:
 
 concurrency:
@@ -91,4 +92,3 @@ jobs:
 
       - name: Run npm audit
         run: pnpm audit --audit-level=high
-        continue-on-error: true

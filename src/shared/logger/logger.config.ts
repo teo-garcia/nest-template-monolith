@@ -33,7 +33,8 @@ export const formatMeta = (
 }
 
 export const createLoggerConfig = (
-  environment: string
+  environment: string,
+  output = 'console'
 ): winston.LoggerOptions => {
   const isProduction = environment === 'production'
 
@@ -67,35 +68,38 @@ export const createLoggerConfig = (
     winston.format.json()
   )
 
-  const fileRotateTransport = new winston.transports.DailyRotateFile({
-    filename: 'logs/application-%DATE%.log',
-    datePattern: 'YYYY-MM-DD',
-    zippedArchive: true,
-    maxSize: '20m',
-    maxFiles: '14d',
-    format: jsonFormat,
-    level: isProduction ? 'info' : 'debug',
-  })
+  const transports: winston.transport[] = [
+    new winston.transports.Console({
+      format: isProduction ? jsonFormat : consoleFormat,
+    }),
+  ]
 
-  const errorRotateTransport = new winston.transports.DailyRotateFile({
-    filename: 'logs/error-%DATE%.log',
-    datePattern: 'YYYY-MM-DD',
-    zippedArchive: true,
-    maxSize: '20m',
-    maxFiles: '14d',
-    format: jsonFormat,
-    level: 'error',
-  })
+  if (output === 'file' || output === 'both') {
+    transports.push(
+      new winston.transports.DailyRotateFile({
+        filename: 'logs/application-%DATE%.log',
+        datePattern: 'YYYY-MM-DD',
+        zippedArchive: true,
+        maxSize: '20m',
+        maxFiles: '14d',
+        format: jsonFormat,
+        level: isProduction ? 'info' : 'debug',
+      }),
+      new winston.transports.DailyRotateFile({
+        filename: 'logs/error-%DATE%.log',
+        datePattern: 'YYYY-MM-DD',
+        zippedArchive: true,
+        maxSize: '20m',
+        maxFiles: '14d',
+        format: jsonFormat,
+        level: 'error',
+      })
+    )
+  }
 
   return {
     levels: logLevels,
     level: isProduction ? 'info' : 'debug',
-    transports: [
-      new winston.transports.Console({
-        format: consoleFormat,
-      }),
-      fileRotateTransport,
-      errorRotateTransport,
-    ],
+    transports,
   }
 }
