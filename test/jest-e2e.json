@@ -1,15 +1,26 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
-  "globalSetup": "./global-setup.ts",
+  "rootDir": "..",
+  "globalSetup": "<rootDir>/test/global-setup.ts",
   "setupFiles": ["dotenv/config"],
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
+  "collectCoverage": true,
+  "collectCoverageFrom": [
+    "src/**/*.(t|j)s",
+    "!src/generated/**",
+    "!src/**/*.spec.ts",
+    "!src/**/*.d.ts",
+    "!src/main.ts",
+    "!src/telemetry.ts"
+  ],
+  "coverageDirectory": "<rootDir>/coverage/e2e",
+  "coverageReporters": ["text", "lcov", "html"],
   "transform": {
     "^.+\\.(t|j)s$": [
       "ts-jest",
       {
-        "tsconfig": "<rootDir>/../tsconfig.spec.json"
+        "tsconfig": "<rootDir>/tsconfig.spec.json"
       }
     ]
   }
