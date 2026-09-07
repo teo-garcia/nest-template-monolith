@@ -2,7 +2,6 @@ name: Security Scan
 
 on:
   schedule:
-    # Run first Monday of each month at 9:00 AM UTC
     - cron: "0 9 * * 1"
   pull_request:
     branches: [main]
@@ -20,63 +19,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  trivy-scan:
-    name: Trivy Vulnerability Scan
-    runs-on: ubuntu-latest
+  shared-security:
+    name: Shared security policy
     permissions:
       contents: read
       security-events: write
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Run Trivy vulnerability scanner in fs mode
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          scan-type: "fs"
-          scan-ref: "."
-          format: "sarif"
-          output: "trivy-fs-results.sarif"
-          severity: "CRITICAL,HIGH"
-
-      - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        if: always()
-        with:
-          sarif_file: "trivy-fs-results.sarif"
-          category: "trivy-fs"
-
-      - name: Run Trivy vulnerability scanner on Docker image
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          scan-type: "config"
-          scan-ref: "./docker/Dockerfile"
-          format: "sarif"
-          output: "trivy-docker-results.sarif"
-          severity: "CRITICAL,HIGH"
-
-      - name: Upload Docker scan results
-        uses: github/codeql-action/upload-sarif@v4
-        if: always()
-        with:
-          sarif_file: "trivy-docker-results.sarif"
-          category: "trivy-docker"
-
-  dependency-review:
-    name: Dependency Review
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v5.0.0
-        with:
-          fail-on-severity: high
+    uses: teo-garcia/templates/.github/workflows/reusable-security.yml@02a8caa55d7b43f53f8811bb2d644dd90e73a940 # delivery-v0.1.0
 
   npm-audit:
     name: NPM Audit
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 
