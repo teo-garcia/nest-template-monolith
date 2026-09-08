@@ -14,22 +14,42 @@ export class AppLogger implements LoggerService {
   }
 
   log(message: string, ...meta: LogMetadata[]): void {
-    this.logger.info(message, { context: this.context, ...meta })
+    this.logger.info(message, {
+      context: this.context,
+      ...this.mergeMetadata(meta),
+    })
   }
 
   error(message: string, trace?: string, ...meta: LogMetadata[]): void {
-    this.logger.error(message, { context: this.context, trace, ...meta })
+    this.logger.error(message, {
+      context: this.context,
+      trace,
+      ...this.mergeMetadata(meta),
+    })
   }
 
   warn(message: string, ...meta: LogMetadata[]): void {
-    this.logger.warn(message, { context: this.context, ...meta })
+    this.logger.warn(message, {
+      context: this.context,
+      ...this.mergeMetadata(meta),
+    })
   }
 
   debug(message: string, ...meta: LogMetadata[]): void {
-    this.logger.debug(message, { context: this.context, ...meta })
+    this.logger.debug(message, {
+      context: this.context,
+      ...this.mergeMetadata(meta),
+    })
   }
 
   verbose(message: string, ...meta: LogMetadata[]): void {
-    this.logger.verbose(message, { context: this.context, ...meta })
+    this.logger.verbose(message, {
+      context: this.context,
+      ...this.mergeMetadata(meta),
+    })
+  }
+
+  private mergeMetadata(metadata: LogMetadata[]): LogMetadata {
+    return Object.assign({}, ...metadata)
   }
 }
