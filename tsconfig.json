@@ -1,8 +1,8 @@
 {
   "extends": "@teo-garcia/tsconfig-shared/base",
   "compilerOptions": {
-    "module": "es2022",
-    "moduleResolution": "bundler",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -14,13 +14,17 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "types": ["jest", "node"],
+    "types": ["vitest/globals", "node"],
     "rootDir": ".",
     "outDir": "./dist",
     "paths": {
       "@/*": ["./src/*"]
     },
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "resolvePackageJsonExports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "incremental": true
   },
   "include": ["src/**/*", "test/**/*", "prisma/**/*.ts"],
   "exclude": ["prisma.config.ts"]

@@ -3,8 +3,8 @@ import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { SkipThrottle } from '@nestjs/throttler'
 import type { Response } from 'express'
 
-import { HealthResponseDto } from './health.contract'
-import { HealthService } from './health.service'
+import { HealthResponseDto } from './health.contract.js'
+import { HealthService } from './health.service.js'
 
 @ApiTags('Health')
 @SkipThrottle()

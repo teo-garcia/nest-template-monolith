@@ -6,6 +6,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseEnumPipe,
   Patch,
   Post,
   Query,
@@ -19,15 +20,18 @@ import {
   ApiTags,
 } from '@nestjs/swagger'
 
-import { TaskStatus } from '../../generated/prisma/client'
-import { ApiEnvelopeResponse, ErrorEnvelopeDto } from '../../shared/dto'
+import { TaskStatus } from '../../generated/prisma/client.js'
+import {
+  ApiEnvelopeResponse,
+  ErrorEnvelopeDto,
+} from '../../shared/dto/index.js'
 import {
   CreateTaskDto,
   PaginatedTasksResponseDto,
   TaskResponseDto,
   UpdateTaskDto,
-} from './dto'
-import { TasksService } from './tasks.service'
+} from './dto/index.js'
+import { TasksService } from './tasks.service.js'
 
 @ApiTags('Tasks')
 @ApiExtraModels(PaginatedTasksResponseDto, ErrorEnvelopeDto)
@@ -99,6 +103,7 @@ export class TasksController {
    * GET /api/v1/tasks?status=IN_PROGRESS&priority=3
    */
   @Get()
+  @ApiQuery({ name: 'status', required: false, enum: TaskStatus })
   @ApiQuery({ name: 'page', required: false, type: Number, minimum: 1 })
   @ApiQuery({
     name: 'pageSize',
@@ -111,7 +116,8 @@ export class TasksController {
     description: 'A page of tasks, wrapped in the success envelope.',
   })
   async findAll(
-    @Query('status') status?: TaskStatus,
+    @Query('status', new ParseEnumPipe(TaskStatus, { optional: true }))
+    status?: keyof typeof TaskStatus,
     @Query('priority') priority?: string,
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string

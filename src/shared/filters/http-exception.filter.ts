@@ -9,7 +9,7 @@ import {
   Logger,
 } from '@nestjs/common'
 
-import { Prisma } from '../../generated/prisma/client'
+import { Prisma } from '../../generated/prisma/client.js'
 
 type PrismaClientKnownRequestError = Prisma.PrismaClientKnownRequestError
 import { Request, Response } from 'express'
@@ -50,7 +50,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     request: Request
   ): ErrorResponse {
     const timestamp = new Date().toISOString()
-    const path = request.url
+    // Nest's prefix router can strip its mount path before the 404 handler.
+    const path = request.originalUrl || request.url
     const method = request.method
     const attachedRequestId =
       typeof (request as { id?: unknown }).id === 'string'

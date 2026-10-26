@@ -1,7 +1,7 @@
 import { applyDecorators, Type } from '@nestjs/common'
 import { ApiExtraModels, ApiResponse, getSchemaPath } from '@nestjs/swagger'
 
-import { SuccessEnvelopeDto } from './success-envelope.dto'
+import { SuccessEnvelopeDto } from './success-envelope.dto.js'
 
 interface EnvelopeResponseOptions {
   /** HTTP status the payload is returned with. Defaults to 200. */

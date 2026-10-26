@@ -100,6 +100,11 @@ jobs:
           docker run --rm --network host --env DATABASE_URL nest-migration:ci
           docker run --rm --network host --env DATABASE_URL nest-migration:ci
 
+      - name: Seed disposable conformance database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nest_monolith_test?schema=public
+        run: pnpm db:seed
+
       - name: Start conformance server
         env:
           OTEL_ENABLED: "false"

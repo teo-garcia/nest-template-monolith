@@ -1,4 +1,4 @@
-import { bootstrapApplication } from './bootstrap'
+import { bootstrapApplication } from './bootstrap.js'
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason)

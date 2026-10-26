@@ -7,7 +7,7 @@ import {
 import { trace } from '@opentelemetry/api'
 import { Observable, tap } from 'rxjs'
 
-import { AppLogger } from '../logger/logger.service'
+import { AppLogger } from '../logger/logger.service.js'
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
