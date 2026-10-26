@@ -1,4 +1,5 @@
 allowBuilds:
+  "@parcel/watcher": false
   prisma: true
   "@prisma/client": true
   "@nestjs/core": true
