@@ -88,6 +88,21 @@ Run Prisma migrations as a pre-deploy step with `pnpm db:deploy` before the new
 application version starts. Do not run migrations from application startup,
 request handlers, seed scripts, or tests that point at a shared database.
 
+For container deployments, build the separate migration target from the same
+commit as the application image. It includes the pinned Prisma CLI, config,
+schema, and migration history; the application image contains runtime
+dependencies only:
+
+```bash
+docker build -f docker/Dockerfile --target migration -t nest-migration:release .
+docker run --rm --network <application-network> \
+  --env DATABASE_URL nest-migration:release
+```
+
+Supply `DATABASE_URL` through the deployment's secret environment. Run this job
+successfully before starting the new application version. Re-running it with no
+pending migrations leaves the schema unchanged.
+
 Production migrations must be backward-compatible with the currently running
 version. Use expand-contract changes: add nullable columns, new tables, and new
 indexes before code depends on them; backfill explicitly when needed; deploy

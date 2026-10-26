@@ -93,7 +93,8 @@
       "!src/**/*.spec.ts",
       "!src/**/*.d.ts",
       "!src/main.ts",
-      "!src/telemetry.ts"
+      "!src/telemetry.ts",
+      "!src/application.ts"
     ],
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
