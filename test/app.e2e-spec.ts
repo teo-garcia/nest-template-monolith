@@ -3,16 +3,17 @@ import { ConfigService } from '@nestjs/config'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { App } from 'supertest/types'
+import type { App } from 'supertest/types.js'
 
-import { AppModule } from '../src/app.module'
-import { GlobalExceptionFilter } from '../src/shared/filters'
+import { AppModule } from '../src/app.module.js'
+import { GlobalExceptionFilter } from '../src/shared/filters/index.js'
+import { ApplicationExpressAdapter } from '../src/shared/http/application-express.adapter.js'
 import {
   RequestIdInterceptor,
   TransformInterceptor,
-} from '../src/shared/interceptors'
-import { MetricsInterceptor } from '../src/shared/metrics'
-import { GlobalValidationPipe } from '../src/shared/pipes'
+} from '../src/shared/interceptors/index.js'
+import { MetricsInterceptor } from '../src/shared/metrics/index.js'
+import { GlobalValidationPipe } from '../src/shared/pipes/index.js'
 
 const trimSlashes = (value: string): string => {
   let start = 0
@@ -74,7 +75,7 @@ describe('AppController (e2e)', () => {
       imports: [AppModule],
     }).compile()
 
-    app = moduleFixture.createNestApplication()
+    app = moduleFixture.createNestApplication(new ApplicationExpressAdapter())
 
     // Apply same global configuration as main.ts
     const configService = app.get(ConfigService)
@@ -163,6 +164,33 @@ describe('AppController (e2e)', () => {
         meta: { requestId },
       })
     })
+
+    it.each(['outside prefix', 'bare prefix', 'health child'])(
+      'returns the shared error envelope for an unmatched %s route',
+      async (location) => {
+        const path =
+          location === 'bare prefix'
+            ? apiPrefix
+            : location === 'health child'
+              ? '/health/missing'
+              : '/__conformance__/missing'
+        const requestId = '00000000-0000-4000-8000-000000000002'
+        const response = await request(app.getHttpServer())
+          .get(path)
+          .set('X-Request-ID', requestId)
+          .expect(404)
+          .expect('Content-Type', /application\/json/)
+
+        expect(response.headers['x-request-id']).toBe(requestId)
+        expect(response.body).toMatchObject({
+          success: false,
+          statusCode: 404,
+          method: 'GET',
+          path,
+          meta: { requestId },
+        })
+      }
+    )
   })
 
   describe('Health Checks', () => {
@@ -430,6 +458,20 @@ describe('AppController (e2e)', () => {
       for (const task of data.data) {
         expect(task.status).toBe('IN_PROGRESS')
       }
+    })
+
+    it('/api/v1/tasks (GET) rejects an invalid status with the error envelope', async () => {
+      const response = await request(app.getHttpServer())
+        .get(`${apiPrefix}/tasks?status=INVALID_STATUS`)
+        .expect(400)
+
+      expect(response.body).toMatchObject({
+        success: false,
+        statusCode: 400,
+        method: 'GET',
+      })
+      expect(response.body.message).toContain('enum')
+      expect(response.body.meta).toHaveProperty('requestId')
     })
 
     it('/api/v1/tasks?priority=5 (GET) should filter by priority', async () => {

@@ -1,8 +1,8 @@
 import { NotFoundException } from '@nestjs/common'
 
-import { Task, TaskStatus } from '../../generated/prisma/client'
-import { PrismaService } from '../../shared/prisma'
-import { TasksService } from './tasks.service'
+import { Task, TaskStatus } from '../../generated/prisma/client.js'
+import { PrismaService } from '../../shared/prisma/index.js'
+import { TasksService } from './tasks.service.js'
 
 const makeTask = (overrides: Partial<Task> = {}): Task => ({
   id: 'task-1',
@@ -17,14 +17,14 @@ const makeTask = (overrides: Partial<Task> = {}): Task => ({
 
 describe('TasksService', () => {
   const taskClient = {
-    count: jest.fn(),
-    create: jest.fn(),
-    delete: jest.fn(),
-    findMany: jest.fn(),
-    findUnique: jest.fn(),
-    update: jest.fn(),
+    count: vi.fn(),
+    create: vi.fn(),
+    delete: vi.fn(),
+    findMany: vi.fn(),
+    findUnique: vi.fn(),
+    update: vi.fn(),
   }
-  const transaction = jest.fn()
+  const transaction = vi.fn()
   const prisma = {
     task: taskClient,
     $transaction: transaction,
@@ -32,7 +32,7 @@ describe('TasksService', () => {
   const service = new TasksService(prisma)
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('applies domain defaults when creating a task', async () => {

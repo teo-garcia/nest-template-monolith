@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger'
 import { SkipThrottle } from '@nestjs/throttler'
 import type { Response } from 'express'
 
-import { MetricsService } from './metrics.service'
+import { MetricsService } from './metrics.service.js'
 
 @ApiTags('Metrics')
 @SkipThrottle()

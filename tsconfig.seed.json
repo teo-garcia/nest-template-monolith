@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "module": "CommonJS",
-    "moduleResolution": "Node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2023",
-    "types": ["node"]
+    "types": ["node"],
+    "resolvePackageJsonExports": true,
+    "isolatedModules": true
   },
   "include": ["prisma/seed.ts", "src/generated/prisma/**/*.ts"]
 }

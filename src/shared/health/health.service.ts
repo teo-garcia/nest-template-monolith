@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
-import { PrismaService } from '../prisma'
-import { RedisService } from '../redis'
+import { PrismaService } from '../prisma/index.js'
+import { RedisService } from '../redis/index.js'
 import {
   HealthCheckState,
   HealthResponseDto,
   resolveHealthStatus,
-} from './health.contract'
+} from './health.contract.js'
 
 /**
  * Builds the shared health report. Mirrors the Adonis template's

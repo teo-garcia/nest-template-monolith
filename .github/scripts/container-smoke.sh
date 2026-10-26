@@ -20,7 +20,7 @@ docker run --detach --name production-db \
   --env POSTGRES_USER=postgres \
   --env POSTGRES_PASSWORD=postgres \
   --env POSTGRES_DB=nest_monolith \
-  --health-cmd pg_isready \
+  --health-cmd "pg_isready -h 127.0.0.1 -U postgres -d nest_monolith" \
   --health-interval 1s \
   --health-retries 30 \
   postgres:18-alpine
@@ -33,8 +33,7 @@ docker run --detach --name production-redis \
 
 dependencies_ready=false
 for _ in $(seq 1 60); do
-  if docker logs production-db 2>&1 | grep --quiet "PostgreSQL init process complete" &&
-    docker exec production-db pg_isready -U postgres -d nest_monolith >/dev/null &&
+  if docker exec production-db pg_isready -h 127.0.0.1 -U postgres -d nest_monolith >/dev/null &&
     docker exec production-redis redis-cli ping | grep --quiet PONG; then
     dependencies_ready=true
     break
@@ -59,7 +58,14 @@ docker run --detach --name production-app \
 
 for _ in $(seq 1 30); do
   if curl --fail --silent http://127.0.0.1:43118/health/live >/dev/null; then
-    exit 0
+    docker stop --time 15 production-app >/dev/null
+    exit_code=$(docker inspect --format '{{.State.ExitCode}}' production-app)
+    if [[ "$exit_code" == 0 || "$exit_code" == 143 ]]; then
+      exit 0
+    fi
+    docker logs production-app
+    echo "Production container did not shut down gracefully (exit $exit_code)" >&2
+    exit 1
   fi
   sleep 1
 done

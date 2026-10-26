@@ -4,17 +4,17 @@ import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import helmet from 'helmet'
 
-import { AppModule } from './app.module'
-import { GlobalExceptionFilter } from './shared/filters'
+import { AppModule } from './app.module.js'
+import { GlobalExceptionFilter } from './shared/filters/index.js'
+import { ApplicationExpressAdapter } from './shared/http/application-express.adapter.js'
 import {
   LoggingInterceptor,
   RequestIdInterceptor,
   TransformInterceptor,
-} from './shared/interceptors'
-import { AppLogger } from './shared/logger/logger.service'
-import { MetricsInterceptor } from './shared/metrics'
-import { GlobalValidationPipe } from './shared/pipes'
-import { shutdownTelemetry } from './telemetry'
+} from './shared/interceptors/index.js'
+import { AppLogger } from './shared/logger/logger.service.js'
+import { MetricsInterceptor } from './shared/metrics/index.js'
+import { GlobalValidationPipe } from './shared/pipes/index.js'
 
 /**
  * Bootstrap the monolith application
@@ -28,9 +28,11 @@ import { shutdownTelemetry } from './telemetry'
  * 6. Start listening on configured port
  */
 export async function startApplication(): Promise<void> {
-  const app = await NestFactory.create(AppModule, {
-    bufferLogs: true,
-  })
+  const app = await NestFactory.create(
+    AppModule,
+    new ApplicationExpressAdapter(),
+    { bufferLogs: true }
+  )
 
   // Get configuration
   const configService = app.get(ConfigService)
@@ -124,9 +126,6 @@ export async function startApplication(): Promise<void> {
 
   const forceExit = (signal: string) => {
     logger.log(`${signal} received, starting graceful shutdown...`)
-    void shutdownTelemetry().catch((error: unknown) => {
-      logger.error('Failed to shut down telemetry', String(error))
-    })
     setTimeout(() => {
       logger.error(
         `Shutdown timed out after ${shutdownTimeout}ms, forcing exit`
@@ -135,6 +134,7 @@ export async function startApplication(): Promise<void> {
     }, shutdownTimeout).unref()
   }
 
-  process.on('SIGTERM', () => forceExit('SIGTERM'))
-  process.on('SIGINT', () => forceExit('SIGINT'))
+  // Nest re-emits the signal after awaiting lifecycle hooks. Do not intercept it.
+  process.once('SIGTERM', () => forceExit('SIGTERM'))
+  process.once('SIGINT', () => forceExit('SIGINT'))
 }

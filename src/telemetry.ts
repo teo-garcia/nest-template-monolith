@@ -28,6 +28,9 @@ export async function startTelemetry(): Promise<void> {
       [ATTR_SERVICE_VERSION]: serviceVersion,
     }),
     traceExporter: new OTLPTraceExporter({ url: endpoint }),
+    // Winston and prom-client own these signals unless explicitly opted into OTLP.
+    logRecordProcessors: process.env.OTEL_LOGS_EXPORTER ? undefined : [],
+    metricReaders: process.env.OTEL_METRICS_EXPORTER ? undefined : [],
     instrumentations: [getNodeAutoInstrumentations()],
   })
 

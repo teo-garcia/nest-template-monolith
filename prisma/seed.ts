@@ -3,7 +3,7 @@ import 'dotenv/config'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { Pool } from 'pg'
 
-import { PrismaClient, TaskStatus } from '../src/generated/prisma/client'
+import { PrismaClient, TaskStatus } from '../src/generated/prisma/client.js'
 
 const databaseUrl = process.env.DATABASE_URL
 

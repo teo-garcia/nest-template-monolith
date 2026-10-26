@@ -6,9 +6,9 @@
 and metrics**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Node](https://img.shields.io/badge/Node-24+-339933?logo=node.js&logoColor=white)](https://nodejs.org)
-[![pnpm](https://img.shields.io/badge/pnpm-10+-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
-[![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com)
+[![Node](https://img.shields.io/badge/Node-24.15+-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+[![pnpm](https://img.shields.io/badge/pnpm-11+-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
+[![NestJS](https://img.shields.io/badge/NestJS-12-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com)
 [![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma&logoColor=white)](https://prisma.io)
 
 Part of the [@teo-garcia/templates](https://github.com/teo-garcia/templates)
@@ -22,12 +22,12 @@ ecosystem
 
 | Category          | Technologies                                          |
 | ----------------- | ----------------------------------------------------- |
-| **Framework**     | NestJS 11 with modular architecture                   |
+| **Framework**     | NestJS 12 with native ESM and modular architecture    |
 | **Database**      | Prisma ORM with PostgreSQL                            |
 | **Cache**         | Redis for caching                                     |
 | **Observability** | Health checks, Prometheus metrics, structured logging |
 | **Type Safety**   | TypeScript with strict mode                           |
-| **Testing**       | Jest for unit and E2E tests                           |
+| **Testing**       | Vitest with SWC for unit and E2E tests                |
 | **Code Quality**  | ESLint, Prettier, Husky, commitlint                   |
 | **DevOps**        | Docker, GitHub Actions CI/CD                          |
 
@@ -35,8 +35,9 @@ ecosystem
 
 ## Requirements
 
-- Node.js 24+
-- pnpm 10+
+- Node.js 24.15+ on the 24.x line, or Node.js 26+ (matches the Nest CLI
+  generators)
+- pnpm 11 (the exact version is pinned in `package.json`)
 - Docker and Docker Compose
 - PostgreSQL
 - Redis
@@ -69,7 +70,7 @@ when `DOCS_ENABLED=true`.
 | `pnpm check`       | Run lint, typecheck, format, and tests |
 | `pnpm start:prod`  | Run production server                  |
 | `pnpm test`        | Run unit tests                         |
-| `pnpm test:e2e`    | Run E2E tests                          |
+| `pnpm test:e2e`    | Run E2E tests and coverage             |
 | `pnpm test:cov`    | Run tests with coverage                |
 | `pnpm lint:es`     | Lint and fix with ESLint               |
 | `pnpm lint:ts`     | TypeScript type checking               |
@@ -110,8 +111,11 @@ code that stops reading the old shape; then remove or narrow schema in a later
 release.
 
 `pnpm db:deploy` is safe to re-run when there are no pending migrations.
-Production rollback is a database backup restore plus compatible code, or a
-forward-fix migration. Prisma does not provide a production `db:rollback`
+`pnpm db:seed` replaces the sample task rows and is only for disposable
+local/test databases. It runs TypeScript with `tsx`; the Prisma client is
+generated as ESM with `.js` imports for both the production build and the seed
+runner. Production rollback is a database backup restore plus compatible code,
+or a forward-fix migration. Prisma does not provide a production `db:rollback`
 command in this template; `pnpm db:reset` is local/test-only.
 
 Avoid destructive one-step migrations, renaming columns without a compatibility
@@ -130,6 +134,15 @@ contraction with the first code release that stops using the old shape.
 | `GET /metrics`      | Prometheus metrics when `METRICS_ENABLED=true` |
 
 Structured JSON logs via Winston with daily rotation and request ID tracking.
+
+The development, production, and Docker entrypoints register OpenTelemetry's ESM
+loader hook. Startup loads `.env`, starts telemetry, then dynamically imports
+the application so instrumented dependencies load in the correct order. Keep
+this ordering and loader when adding another entrypoint. Set
+`OTEL_ENABLED=false` to disable tracing; otherwise configure `OTEL_SERVICE_NAME`
+and `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` for your collector. Logs default to
+Winston output and metrics to Prometheus; additional OpenTelemetry exporters
+require explicit `OTEL_LOGS_EXPORTER` or `OTEL_METRICS_EXPORTER` settings.
 
 ---
 
