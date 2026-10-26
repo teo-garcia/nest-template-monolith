@@ -90,8 +90,15 @@ jobs:
           path: coverage/
           retention-days: 7
 
-      - name: Migrate conformance database
-        run: pnpm db:deploy
+      - name: Build release migration image
+        run: docker build -f docker/Dockerfile --target migration -t nest-migration:ci .
+
+      - name: Migrate conformance database with release image
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nest_monolith_test?schema=public
+        run: |
+          docker run --rm --network host --env DATABASE_URL nest-migration:ci
+          docker run --rm --network host --env DATABASE_URL nest-migration:ci
 
       - name: Start conformance server
         env:
