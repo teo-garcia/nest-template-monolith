@@ -27,8 +27,18 @@ COPY . .
 # This compiles TypeScript to JavaScript in the /dist directory
 RUN pnpm build
 
-# Remove development dependencies without running development-only lifecycle hooks
-RUN CI=true pnpm prune --prod --ignore-scripts
+# An explicit release job runs migrations with the pinned CLI and Prisma config.
+FROM builder AS migration
+ENV NODE_ENV=production
+USER node
+CMD ["node", "node_modules/prisma/build/index.js", "migrate", "deploy"]
+
+# A fresh install avoids renaming copied dependencies across filesystem layers.
+FROM node:24-alpine AS production-deps
+RUN corepack enable
+WORKDIR /app
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN CI=true HUSKY=0 pnpm install --prod --frozen-lockfile --ignore-scripts
 
 # ================================
 # Production Stage
@@ -48,15 +58,11 @@ RUN addgroup -g 1001 -S nodejs && \
 WORKDIR /app
 RUN mkdir -p logs && chown -R nestjs:nodejs /app
 
-# Copy node_modules from builder
-# This includes production dependencies only
-COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
+# Copy production dependencies only
+COPY --from=production-deps --chown=nestjs:nodejs /app/node_modules ./node_modules
 
 # Copy built application from builder
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
-
-# Copy prisma files for migrations in production
-COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
 
 # Copy package.json for version info and scripts
 COPY --from=builder --chown=nestjs:nodejs /app/package.json ./package.json
